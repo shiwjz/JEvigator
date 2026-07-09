@@ -47,7 +47,9 @@ const server = createServer(async (request, response) => {
       const result = await runAnalysis({
         idea: typeof payload.idea === "string" ? payload.idea.slice(0, 300) : "",
         extraction:
-          payload.extraction && typeof payload.extraction === "object" ? payload.extraction : null
+          payload.extraction && typeof payload.extraction === "object" ? payload.extraction : null,
+        preferredCategory:
+          typeof payload.preferredCategory === "string" ? payload.preferredCategory : null
       });
       response.writeHead(200, { "content-type": "application/json; charset=utf-8" });
       response.end(JSON.stringify(result));

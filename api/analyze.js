@@ -12,7 +12,9 @@ export default async function handler(request, response) {
     const idea = typeof body.idea === "string" ? body.idea.slice(0, 300) : "";
     const extraction =
       body.extraction && typeof body.extraction === "object" ? body.extraction : null;
-    const result = await runAnalysis({ idea, extraction });
+    const preferredCategory =
+      typeof body.preferredCategory === "string" ? body.preferredCategory : null;
+    const result = await runAnalysis({ idea, extraction, preferredCategory });
     response.status(200).json(result);
   } catch (error) {
     response.status(500).json({
