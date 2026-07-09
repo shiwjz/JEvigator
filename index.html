@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="제주 바이오 아이디어를 공공데이터 기반 4축으로 분석하는 R&D 의사결정 지원 서비스"
+    />
+    <title>Jeju Bio R&D Navigator</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <button class="brand-button" id="homeButton" type="button" aria-label="홈으로 이동">
+          <span class="brand-symbol" aria-hidden="true">J</span>
+          <span>
+            <strong>Jeju Bio R&amp;D Navigator</strong>
+            <small>Public data decision support</small>
+          </span>
+        </button>
+        <nav class="topnav" aria-label="주요 메뉴">
+          <button type="button" data-go="input">직접 분석</button>
+          <button type="button" data-go="ideas">추천 아이디어</button>
+          <button class="status-trigger" id="statusButton" type="button">
+            <span class="live-dot" aria-hidden="true"></span>
+            데이터 연결
+          </button>
+        </nav>
+      </header>
+
+      <main>
+        <section class="view active" id="homeView" data-view="home">
+          <div class="hero">
+            <div class="hero-inner">
+              <p class="eyebrow">JEJU BIO AX HACKATHON</p>
+              <h1>Jeju Bio R&amp;D Navigator</h1>
+              <p class="hero-copy">
+                제주 바이오 자원 아이디어를 기술성, 시장성, 특허안전성,
+                공급안정성의 네 가지 근거로 빠르게 검토합니다.
+              </p>
+              <div class="hero-flow" aria-label="서비스 분석 흐름">
+                <span>아이디어 구조화</span>
+                <i aria-hidden="true">→</i>
+                <span>공공데이터 조회</span>
+                <i aria-hidden="true">→</i>
+                <span>4축 점수 계산</span>
+                <i aria-hidden="true">→</i>
+                <span>AI 결과 설명</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="entry-band">
+            <div class="entry-intro">
+              <p class="eyebrow">START ANALYSIS</p>
+              <h2>지금 상황에 맞는 방법으로 시작하세요.</h2>
+            </div>
+            <div class="entry-options">
+              <article class="entry-option">
+                <span class="option-number">01</span>
+                <div>
+                  <h3>아이디어가 이미 있으신가요?</h3>
+                  <p>자유 문장으로 입력하면 표준 원료·기능·제품군으로 구조화합니다.</p>
+                </div>
+                <button class="primary-button" type="button" data-go="input">
+                  사용자 지정 AI 분석 <span aria-hidden="true">→</span>
+                </button>
+              </article>
+              <article class="entry-option">
+                <span class="option-number">02</span>
+                <div>
+                  <h3>아직 사업 구상이 없나요?</h3>
+                  <p>제주의 Green, Blue, Red, White Bio 추천 사례에서 골라보세요.</p>
+                </div>
+                <button class="secondary-button" type="button" data-go="ideas">
+                  아이디어 구상하기 <span aria-hidden="true">→</span>
+                </button>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="view workspace-view" id="inputView" data-view="input">
+          <div class="page-heading">
+            <button class="back-button" type="button" data-go="home">← 처음으로</button>
+            <p class="eyebrow">CUSTOM AI ANALYSIS</p>
+            <h1>어떤 바이오 제품을 만들고 싶으신가요?</h1>
+            <p>완성된 사업계획이 아니어도 괜찮습니다. 원료, 기능, 제품을 자연스럽게 적어주세요.</p>
+          </div>
+
+          <div class="composer-layout">
+            <form class="idea-form" id="ideaForm">
+              <label for="ideaInput">사업 아이디어</label>
+              <textarea
+                id="ideaInput"
+                rows="7"
+                maxlength="300"
+                placeholder="예: 제주 감귤 껍질로 피부에 좋은 항산화 화장품을 만들고 싶어요."
+              ></textarea>
+              <div class="form-footer">
+                <span id="characterCount">0 / 300</span>
+                <button class="primary-button" id="analyzeButton" type="submit">
+                  공공데이터 분석 시작 <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </form>
+
+            <aside class="extraction-preview" aria-live="polite">
+              <div class="preview-heading">
+                <span>입력 구조화 미리보기</span>
+                <small id="extractorLabel">규칙 기반 미리보기</small>
+              </div>
+              <dl>
+                <div>
+                  <dt>원료</dt>
+                  <dd id="previewIngredient">입력 대기</dd>
+                </div>
+                <div>
+                  <dt>기능</dt>
+                  <dd id="previewFunctions">입력 대기</dd>
+                </div>
+                <div>
+                  <dt>제품군</dt>
+                  <dd id="previewCategories">입력 대기</dd>
+                </div>
+              </dl>
+              <p>실제 분석 시 Gemini가 연결되어 있으면 표준 키워드 JSON을 다시 추출합니다.</p>
+            </aside>
+          </div>
+
+          <div class="example-section">
+            <h2>예시로 시작하기</h2>
+            <div class="example-list">
+              <button type="button" data-example="감귤 껍질로 피부에 좋은 항산화 화장품을 만들고 싶어요.">
+                감귤 껍질 항산화 화장품
+              </button>
+              <button type="button" data-example="제주 해조류를 활용한 강아지 영양제를 개발하고 싶어요.">
+                제주 해조류 강아지 영양제
+              </button>
+              <button type="button" data-example="풋귤을 활용한 항산화 기능성 음료를 만들고 싶습니다.">
+                풋귤 항산화 기능성 음료
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="view workspace-view" id="ideasView" data-view="ideas">
+          <div class="page-heading">
+            <button class="back-button" type="button" data-go="home">← 처음으로</button>
+            <p class="eyebrow">IDEA LIBRARY</p>
+            <h1>제주 바이오 자원에서 아이디어를 골라보세요.</h1>
+            <p>추천 아이디어는 사전 정의된 표준 키워드를 사용해 같은 분석 로직으로 연결됩니다.</p>
+          </div>
+
+          <div class="idea-toolbar">
+            <div class="segmented-control" id="bioTypeFilter" aria-label="바이오 분야 필터">
+              <button class="active" data-filter="All" type="button">전체</button>
+              <button data-filter="Green Bio" type="button">Green</button>
+              <button data-filter="Blue Bio" type="button">Blue</button>
+              <button data-filter="Red Bio" type="button">Red</button>
+              <button data-filter="White Bio" type="button">White</button>
+            </div>
+            <span id="ideaCount">12개 아이디어</span>
+          </div>
+          <div class="idea-grid" id="ideaGrid"></div>
+        </section>
+
+        <section class="view result-view" id="resultView" data-view="result">
+          <div class="result-header">
+            <div>
+              <button class="back-button" type="button" data-go="input">← 새 분석</button>
+              <p class="eyebrow">ANALYSIS REPORT</p>
+              <h1 id="resultTitle">분석 결과</h1>
+              <p id="resultTimestamp"></p>
+            </div>
+            <div class="result-actions">
+              <button class="secondary-button" id="shareButton" type="button">결과 복사</button>
+              <button class="primary-button" id="printButton" type="button">인쇄</button>
+            </div>
+          </div>
+
+          <div class="subject-strip">
+            <div>
+              <span>원료</span>
+              <strong id="resultIngredient">-</strong>
+            </div>
+            <div>
+              <span>기능</span>
+              <strong id="resultFunctions">-</strong>
+            </div>
+            <div>
+              <span>제품군</span>
+              <strong id="resultCategories">-</strong>
+            </div>
+            <div>
+              <span>분석 모드</span>
+              <strong id="resultMode">-</strong>
+            </div>
+          </div>
+
+          <section class="score-section">
+            <div class="total-score">
+              <span>종합점수</span>
+              <strong id="totalScore">0</strong>
+              <small>/ 100</small>
+              <p id="decisionLabel">분석 중</p>
+            </div>
+            <div class="score-grid" id="scoreGrid"></div>
+          </section>
+
+          <section class="report-block ai-report">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">AI INTERPRETATION</p>
+                <h2>분석 결과 설명</h2>
+              </div>
+              <span class="provider-badge" id="explanationProvider">근거 기반 폴백</span>
+            </div>
+            <p class="ai-summary" id="aiSummary"></p>
+            <div class="explanation-grid" id="explanationGrid"></div>
+          </section>
+
+          <section class="report-block">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">PUBLIC DATA EVIDENCE</p>
+                <h2>점수 산출 근거</h2>
+              </div>
+              <span class="cache-notice">MVP 데모 캐시</span>
+            </div>
+            <div class="evidence-table" id="evidenceTable"></div>
+          </section>
+
+          <section class="report-block formula-section">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">SCORING LOGIC</p>
+                <h2>계산식</h2>
+              </div>
+            </div>
+            <div class="formula-list" id="formulaList"></div>
+          </section>
+
+          <p class="legal-notice">
+            본 분석은 초기 의사결정을 위한 보조 자료입니다. 특허, 규제, 효능 및 최종 개발 가능성은 기업과 분야별 전문가의
+            추가 검토가 필요합니다.
+          </p>
+        </section>
+      </main>
+
+      <footer>
+        <span>Jeju Bio R&amp;D Navigator</span>
+        <span>AI는 판단을 대신하지 않고 근거를 정리합니다.</span>
+      </footer>
+    </div>
+
+    <dialog class="analysis-dialog" id="analysisDialog">
+      <div class="loader-mark" aria-hidden="true"><span></span></div>
+      <p class="eyebrow">ANALYZING IDEA</p>
+      <h2>공공데이터 근거를 연결하고 있습니다.</h2>
+      <ol id="analysisSteps">
+        <li class="active"><span>1</span> 표준 키워드 구조화</li>
+        <li><span>2</span> 논문·특허·생산 데이터 조회</li>
+        <li><span>3</span> 4축 점수 계산</li>
+        <li><span>4</span> 결과 설명 생성</li>
+      </ol>
+    </dialog>
+
+    <dialog class="status-dialog" id="statusDialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">DATA CONNECTION</p>
+          <h2>현재 데이터 연결 상태</h2>
+        </div>
+        <button id="closeStatusButton" type="button" aria-label="닫기">×</button>
+      </div>
+      <div class="connection-list">
+        <div><span class="status-dot optional"></span><strong>Gemini</strong><p>키가 있으면 자연어 표준화, 없으면 규칙 기반 폴백</p></div>
+        <div><span class="status-dot optional"></span><strong>Claude</strong><p>키가 있으면 결과 설명, 없으면 근거 기반 폴백</p></div>
+        <div><span class="status-dot demo"></span><strong>ScienceON / KIPRIS</strong><p>현재 시연용 캐시 데이터</p></div>
+        <div><span class="status-dot demo"></span><strong>식약처 / 제주데이터허브</strong><p>현재 시연용 캐시 데이터</p></div>
+      </div>
+      <p class="dialog-note">API 키는 브라우저가 아니라 Vercel 서버 환경변수에만 저장합니다.</p>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

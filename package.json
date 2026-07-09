@@ -1,0 +1,11 @@
+{
+  "name": "jeju-bio-rnd-navigator",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "start": "node scripts/dev-server.mjs",
+    "check": "node --check app.js && node --check lib/analyzer.mjs && node --check lib/ai-providers.mjs && node --check api/analyze.js && node --check scripts/dev-server.mjs"
+  }
+}

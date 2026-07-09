@@ -1,0 +1,34 @@
+<svg width="720" height="640" viewBox="0 0 720 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Jeju Bio public data map</title>
+  <desc id="desc">Citrus material, public data sources, and four evidence axes connected as a decision map.</desc>
+  <rect width="720" height="640" rx="28" fill="#F6FAF8"/>
+  <path d="M78 508C150 578 275 594 378 556C508 508 620 393 642 257C660 145 610 84 532 72C452 60 401 116 341 165C277 218 171 195 108 252C38 316 20 451 78 508Z" fill="#DDEBE5"/>
+  <circle cx="258" cy="270" r="104" fill="#F39A1E"/>
+  <circle cx="258" cy="270" r="74" fill="#FFD182"/>
+  <circle cx="258" cy="270" r="44" fill="#FFF4D9"/>
+  <path d="M258 166V374M154 270H362M184 196L332 344M332 196L184 344" stroke="#F39A1E" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="258" cy="270" r="106" stroke="#B66B08" stroke-width="4"/>
+  <rect x="420" y="116" width="202" height="62" rx="12" fill="white" stroke="#C9D8D0"/>
+  <rect x="420" y="210" width="202" height="62" rx="12" fill="white" stroke="#C9D8D0"/>
+  <rect x="420" y="304" width="202" height="62" rx="12" fill="white" stroke="#C9D8D0"/>
+  <text x="444" y="143" fill="#12624F" font-family="Arial, sans-serif" font-size="18" font-weight="700">AI Hub</text>
+  <text x="444" y="163" fill="#62706A" font-family="Arial, sans-serif" font-size="13">성분-효능 데이터</text>
+  <text x="444" y="237" fill="#12624F" font-family="Arial, sans-serif" font-size="18" font-weight="700">MFDS</text>
+  <text x="444" y="257" fill="#62706A" font-family="Arial, sans-serif" font-size="13">원료·사용제한 정보</text>
+  <text x="444" y="331" fill="#12624F" font-family="Arial, sans-serif" font-size="18" font-weight="700">Jeju Data Hub</text>
+  <text x="444" y="351" fill="#62706A" font-family="Arial, sans-serif" font-size="13">감귤 생산·가공 통계</text>
+  <path d="M360 248C388 224 397 163 420 147" stroke="#12624F" stroke-width="4" stroke-linecap="round"/>
+  <path d="M364 270H420" stroke="#2F6FED" stroke-width="4" stroke-linecap="round"/>
+  <path d="M356 304C390 323 398 332 420 335" stroke="#F39A1E" stroke-width="4" stroke-linecap="round"/>
+  <rect x="108" y="438" width="504" height="88" rx="16" fill="#16201C"/>
+  <text x="134" y="469" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="700">4-axis evidence engine</text>
+  <text x="134" y="498" fill="#CFE0D8" font-family="Arial, sans-serif" font-size="14">Technical · Market · Patent risk · Supply stability</text>
+  <circle cx="508" cy="482" r="24" fill="#12624F"/>
+  <circle cx="558" cy="482" r="24" fill="#2F6FED"/>
+  <circle cx="608" cy="482" r="24" fill="#C95062"/>
+  <text x="500" y="488" fill="white" font-family="Arial, sans-serif" font-size="17" font-weight="700">T</text>
+  <text x="550" y="488" fill="white" font-family="Arial, sans-serif" font-size="17" font-weight="700">M</text>
+  <text x="600" y="488" fill="white" font-family="Arial, sans-serif" font-size="17" font-weight="700">P</text>
+  <circle cx="658" cy="482" r="24" fill="#F39A1E"/>
+  <text x="650" y="488" fill="white" font-family="Arial, sans-serif" font-size="17" font-weight="700">S</text>
+</svg>
