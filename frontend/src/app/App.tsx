@@ -16,6 +16,29 @@ import waveVideo from "../imports/252706_medium.mp4";
 import whiteBioVideo from "../imports/13161561-uhd_3840_2160_30fps.mp4";
 import greenBioVideo from "../imports/19715-304748232_medium.mp4";
 import redBioVideo from "../imports/197486-905015022_medium.mp4";
+
+const pexelsImage = (photoId: string) =>
+  `https://images.pexels.com/photos/${photoId}/pexels-photo-${photoId}.jpeg?auto=compress&cs=tinysrgb&w=800`;
+
+// 원본 프론트(JEVIGATOR-FRONT-main)의 이미지 연결명을 그대로 유지한다.
+// 해당 로컬 pexels 파일들이 현재 폴더에 없어서, 파일명에 포함된 Pexels photo id로 동일 원본 이미지를 참조한다.
+const imgJoritdae = pexelsImage("30219931");
+const imgNokcha = pexelsImage("911810");
+const imgGamgyul = pexelsImage("2986");
+const imgPyogo = pexelsImage("37073592");
+const imgHallabong = pexelsImage("31589314");
+const imgCamellia = pexelsImage("36735484");
+const imgHaejo = pexelsImage("4484246");
+const imgMiyeok = pexelsImage("26728215");
+const imgSeongge = pexelsImage("8826357");
+const imgFucoidanHaejo = pexelsImage("8597148");
+const imgYongamhaesu = pexelsImage("31847620");
+const imgEnzymeSeaweed = pexelsImage("8849622");
+const imgMakgeolli = pexelsImage("12321569");
+const imgBlackPig = pexelsImage("5800125");
+const imgHwasansong = "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80";
+const imgTot = "https://images.unsplash.com/photo-1509822929464-92b27bef8caa?w=800&q=80";
+const imgDongchungha = "https://images.unsplash.com/photo-1576671081673-4e6c04f71c1d?w=800&q=80";
 import {
   Dialog,
   DialogContent,
@@ -119,42 +142,43 @@ const CATEGORIES = [
 ];
 
 const MATERIAL_IMAGES: Record<string, string> = {
-  gamgyul: bgImage,
-  hallabong: bgImage,
-  gotgama: greenBioImage,
-  heukdwaeji: whiteBioImage,
-  dureup: grassImage,
-  nokcha: grassImage,
-  yuchae: greenBioImage,
-  danggeun: greenBioImage,
-  pyogo: greenBioImage,
-  buckwheat: grassImage,
-  joritdae: grassImage,
-  haejo: waveImage,
-  "nokcha-catechin": grassImage,
-  "pyogo-polysaccharide": greenBioImage,
-  yongamhaesu: waveImage,
-  "yongam-water": waveImage,
-  aloe: grassImage,
-  spirulina: waveImage,
-  "citrus-peel": bgImage,
-  hwasansong: bgImage,
-  camellia: grassImage,
-  tot: waveImage,
-  miyeok: waveImage,
-  seongge: waveImage,
-  seawater: waveImage,
-  "tangerine-seed": bgImage,
-  "yongamhaesu-beauty": waveImage,
-  "nokcha-extract": grassImage,
-  "jeju-potato": greenBioImage,
-  bija: grassImage,
-  "fermented-citrus": bgImage,
-  "lactic-bacteria": whiteBioImage,
-  "enzyme-seaweed": waveImage,
-  "makgeolli-yeast": whiteBioImage,
-  "black-pig-collagen": whiteBioImage,
-  "citrus-vinegar": bgImage,
+  gamgyul: imgGamgyul,
+  hallabong: imgHallabong,
+  gotgama: "https://images.unsplash.com/photo-1670978939243-38dd2647c05d?w=800&q=80",
+  heukdwaeji: imgBlackPig,
+  dureup: "https://images.unsplash.com/photo-1607189760730-a330bf941e9c?w=800&q=80",
+  nokcha: imgNokcha,
+  yuchae: "https://images.unsplash.com/photo-1589715246045-e881ef9f5c16?w=800&q=80",
+  danggeun: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80",
+  pyogo: imgPyogo,
+  buckwheat: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80",
+  joritdae: imgJoritdae,
+  haejo: imgHaejo,
+  "nokcha-catechin": imgNokcha,
+  "pyogo-polysaccharide": imgPyogo,
+  yongamhaesu: imgYongamhaesu,
+  dongchungha: imgDongchungha,
+  "yongam-water": imgYongamhaesu,
+  aloe: "https://images.unsplash.com/photo-1596705702948-57d4e5d4b2a5?w=800&q=80",
+  spirulina: "https://images.unsplash.com/photo-1622480916113-9000ac49b79d?w=800&q=80",
+  "citrus-peel": imgGamgyul,
+  hwasansong: imgHwasansong,
+  camellia: imgCamellia,
+  tot: imgTot,
+  miyeok: imgMiyeok,
+  seongge: imgSeongge,
+  seawater: imgYongamhaesu,
+  "tangerine-seed": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80",
+  "yongamhaesu-beauty": imgYongamhaesu,
+  "nokcha-extract": "https://images.unsplash.com/photo-1582650859079-ee63913ecb84?w=800&q=80",
+  "jeju-potato": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&q=80",
+  bija: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800&q=80",
+  "fermented-citrus": imgGamgyul,
+  "lactic-bacteria": "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=800&q=80",
+  "enzyme-seaweed": imgEnzymeSeaweed,
+  "makgeolli-yeast": imgMakgeolli,
+  "black-pig-collagen": imgBlackPig,
+  "citrus-vinegar": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80",
 };
 
 const ANALYSIS_RESULTS: Record<string, {
@@ -716,7 +740,7 @@ const MATERIAL_EXTENDED: Record<string, ExtendedMaterial> = {
     ],
   },
   dongchungha: {
-    image: MATERIAL_IMAGES["pyogo-polysaccharide"],
+    image: MATERIAL_IMAGES.dongchungha,
     category: "기능성 약용 버섯",
     desc: "코디세핀·아데노신을 함유한 동충하초는 면역 강화·항피로 효능이 임상적으로 검증된 프리미엄 바이오 소재입니다.",
     annualProduction: 1200, unusedRate: 28, utilization: "높음",
@@ -2292,7 +2316,7 @@ export default function App() {
       color: "#ef4444",
       bg: "linear-gradient(135deg, #f87171 0%, #ef4444 100%)",
       bgVideo: redBioVideo,
-      image: whiteBioImage,
+      image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=1080&q=80",
       emoji: "💊", textColor: "#000000", subTextColor: "#000000"
     },
     {
@@ -3170,10 +3194,10 @@ export default function App() {
                           { id: "joritdae",    name: "조릿대",    desc: "제주 한라산 자생 대나무과, 항균·항염 활성 성분",    tag: "항균",   color: "#22c55e", image: MATERIAL_IMAGES.joritdae,  prob: 88, ocean: "blue" },
                         ],
                         red: [
-                          { id: "haejo",           name: "후코이단",       desc: "항암·면역 활성 해조 다당류 고순도 추출물",       tag: "항암",   color: "#f87171", image: MATERIAL_IMAGES.haejo, prob: 91, ocean: "blue" },
+                          { id: "haejo",           name: "후코이단",       desc: "항암·면역 활성 해조 다당류 고순도 추출물",       tag: "항암",   color: "#f87171", image: imgFucoidanHaejo, prob: 91, ocean: "blue" },
                           { id: "gamgyul",         name: "헤스페리딘",     desc: "혈중 콜레스테롤 개선 플라보노이드 고기능 소재",  tag: "심혈관", color: "#f87171", image: MATERIAL_IMAGES.gamgyul, prob: 76, ocean: "blue" },
                           { id: "nokcha-catechin", name: "녹차 카테킨",    desc: "지방 대사 활성화·항비만 기능성 정제 소재",       tag: "대사",   color: "#f87171", image: MATERIAL_IMAGES["nokcha-catechin"], prob: 68, ocean: "red"  },
-                          { id: "dongchungha",     name: "동충하초",       desc: "코디세핀·아데노신 함유 면역·항피로 원료",        tag: "면역",   color: "#f87171", image: MATERIAL_IMAGES["pyogo-polysaccharide"], prob: 84, ocean: "blue" },
+                          { id: "dongchungha",     name: "동충하초",       desc: "코디세핀·아데노신 함유 면역·항피로 원료",        tag: "면역",   color: "#f87171", image: imgDongchungha, prob: 84, ocean: "blue" },
                           { id: "yongam-water",    name: "제주 용암해수",  desc: "해저 화산암 여과 미네랄 풍부 기능성 용수",       tag: "미네랄", color: "#f87171", image: MATERIAL_IMAGES["yongam-water"], prob: 72, ocean: "red"  },
                           { id: "bija",            name: "비자나무",       desc: "제주 자생 비자 추출물, 항균·항산화 활성",        tag: "항균",   color: "#f87171", image: MATERIAL_IMAGES.bija, prob: 85, ocean: "blue" },
                         ],
