@@ -24,7 +24,7 @@ const pexelsImage = (photoId: string) =>
 // 해당 로컬 pexels 파일들이 현재 폴더에 없어서, 파일명에 포함된 Pexels photo id로 동일 원본 이미지를 참조한다.
 const imgJoritdae = pexelsImage("30219931");
 const imgNokcha = pexelsImage("911810");
-const imgGamgyul = pexelsImage("2986");
+const imgGamgyul = bgImage;
 const imgPyogo = pexelsImage("37073592");
 const imgHallabong = pexelsImage("31589314");
 const imgCamellia = pexelsImage("36735484");
@@ -37,8 +37,8 @@ const imgEnzymeSeaweed = pexelsImage("8849622");
 const imgMakgeolli = pexelsImage("12321569");
 const imgBlackPig = pexelsImage("5800125");
 const imgHwasansong = "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80";
-const imgTot = "https://images.unsplash.com/photo-1509822929464-92b27bef8caa?w=800&q=80";
-const imgDongchungha = "https://images.unsplash.com/photo-1576671081673-4e6c04f71c1d?w=800&q=80";
+const imgTot = waveImage;
+const imgDongchungha = whiteBioImage;
 import {
   Dialog,
   DialogContent,
