@@ -380,6 +380,27 @@ type BackendAnalysisResult = {
       detail?: string;
     }>;
     brandAxes?: Array<{ label?: string; score?: number }>;
+    brandComparisons?: Array<{
+      type?: string;
+      commonality?: string;
+      difference?: string;
+      advantage?: string;
+      gap?: string;
+    }>;
+    axisDetails?: Array<{
+      key?: string;
+      label?: string;
+      score?: number;
+      status?: string;
+      reason?: string;
+      data?: string;
+      gap?: string;
+    }>;
+    startupPath?: Array<{
+      phase?: string;
+      title?: string;
+      action?: string;
+    }>;
     alternatives?: Array<{
       name?: string;
       advantage?: string;
@@ -388,6 +409,25 @@ type BackendAnalysisResult = {
       estimatedScore?: number;
     }>;
     entryStrategy?: string;
+  };
+  dataSources?: Array<{
+    id?: string;
+    name?: string;
+    status?: string;
+    detail?: string;
+    updatedAt?: string;
+  }>;
+  evidenceSummary?: {
+    confirmedCount?: number;
+    status?: string;
+    confirmedSources?: string[];
+  };
+  paperEvidence?: {
+    source?: string;
+    totalCount?: number;
+    recentCount?: number;
+    latestYear?: number;
+    query?: string;
   };
   generatedAt?: string;
 };
@@ -771,12 +811,47 @@ const MATERIAL_EXTENDED: Record<string, ExtendedMaterial> = {
 };
 
 const DATA_SOURCES = [
-  { name: "제주 농업기술원 원료 생산 통계", icon: <Database className="w-4 h-4" />, year: "2023" },
-  { name: "KIPRIS 특허 데이터베이스", icon: <FileText className="w-4 h-4" />, year: "2024" },
-  { name: "식품의약품안전처 고시·인정 현황", icon: <Shield className="w-4 h-4" />, year: "2024" },
-  { name: "한국무역통계진흥원 수출입 데이터", icon: <Globe className="w-4 h-4" />, year: "2023" },
-  { name: "Google Scholar 논문 메타데이터", icon: <Beaker className="w-4 h-4" />, year: "2024" },
-  { name: "제주특별자치도 산업 지원사업 DB", icon: <TrendingUp className="w-4 h-4" />, year: "2024" },
+  { name: "논문·학술 API", icon: <Beaker className="w-4 h-4" />, year: "2개 등록" },
+  { name: "제주 공공 CSV 데이터셋", icon: <Database className="w-4 h-4" />, year: "8개 적재" },
+  { name: "식약처·규제 사전검토 API", icon: <Shield className="w-4 h-4" />, year: "1개 연동" },
+  { name: "특허·시장 트렌드 검색 레이어", icon: <FileText className="w-4 h-4" />, year: "SERP 준비" },
+  { name: "국내 공개 API 카탈로그", icon: <Globe className="w-4 h-4" />, year: "300+ 후보" },
+  { name: "글로벌 공개 API 카탈로그", icon: <TrendingUp className="w-4 h-4" />, year: "780+ 후보" },
+];
+
+const REGISTERED_DATA_OVERVIEW = [
+  { label: "논문 API", value: "2", unit: "개", detail: "OpenAlex, Crossref" },
+  { label: "공공 CSV", value: "8", unit: "개", detail: "감귤·해조류·가축·판매채널 데이터셋" },
+  { label: "규제 API", value: "1", unit: "개", detail: "식약처 화장품 원료성분정보 API" },
+  { label: "API 카탈로그", value: "300+", unit: "개", detail: "public-apis-4Kr 국내 공개 API 후보군" },
+];
+
+const REGISTERED_DATA_DETAILS = [
+  {
+    group: "논문·학술 근거",
+    count: "2개",
+    items: ["OpenAlex Works API", "Crossref Works API"],
+  },
+  {
+    group: "제주 원료·공급 CSV",
+    count: "8개",
+    items: ["감귤 생산·처리 통계", "품종별 감귤 생산 현황", "해조류 생산·생태환경 데이터", "가축 사육 통계", "방문판매업 채널 보조 데이터"],
+  },
+  {
+    group: "규제·인허가 사전검토",
+    count: "1개 연동 + 보조자료",
+    items: ["식약처 화장품 원료성분정보 API", "식품안전나라·식품의약품 데이터 후보", "국가법령정보 Open API 후보"],
+  },
+  {
+    group: "특허·시장 트렌드",
+    count: "SERP 준비",
+    items: ["SERP API 환경변수 기반 시장/특허 트렌드 검색", "키프리스 플러스 API 후보", "공공데이터포털·KOSIS·KATI 후보"],
+  },
+  {
+    group: "공개 API 카탈로그",
+    count: "국내 300+ / 글로벌 780+",
+    items: ["public-apis-4Kr 국내 공개 API 카탈로그", "GLOBAL_PUBLIC_APIS_KR 글로벌 공개 API 카탈로그"],
+  },
 ];
 
 const STEPS = [
@@ -842,6 +917,175 @@ function parseIdeaComponents(idea: string) {
   };
 }
 
+function isCitrusCosmeticIdea(idea: string, components = parseIdeaComponents(idea)) {
+  const text = `${idea} ${components.material} ${components.func} ${components.product}`;
+  return /감귤|귤|시트러스|헤스페리딘|진피/.test(text) && /화장품|뷰티|코스메틱|세럼|크림|피부/.test(text);
+}
+
+function makeBrandBenchmarks(idea: string, color: string, seed: (offset: number, range: number, base: number) => number) {
+  if (isCitrusCosmeticIdea(idea)) {
+    return {
+      myBrand: {
+        name: "내 아이디어",
+        innovation: 78,
+        access: 58,
+        premium: 68,
+        eco: 91,
+        note: "제주 감귤 부산물 업사이클링과 항산화 원료 서사를 동시에 가져가는 클린뷰티 후보"
+      },
+      competitors: [
+        { name: "구달 청귤 비타C 라인", innovation: 70, access: 84, premium: 52, eco: 48, note: "청귤·비타민C 효능 인지가 높고 대중 유통 접근성이 강함" },
+        { name: "이니스프리 제주 라인", innovation: 62, access: 88, premium: 56, eco: 76, note: "제주 원료 스토리와 대중 브랜드 신뢰도가 높음" },
+        { name: "아로마티카", innovation: 72, access: 60, premium: 64, eco: 90, note: "비건·클린뷰티 기준에서 지속가능성 포지션이 강함" },
+        { name: "라네즈 기능성 스킨케어", innovation: 84, access: 78, premium: 82, eco: 44, note: "기능성·프리미엄 신뢰도는 높지만 제주 부산물 서사는 약함" },
+      ],
+      brandSummary: "대중 시트러스 화장품과 정면 경쟁하기보다, 제주 감귤 부산물 기반의 원료 스토리·클린뷰티·항산화 MVP로 포지셔닝하는 것이 초기 진입에 유리합니다."
+    };
+  }
+
+  return {
+    myBrand: { name: "내 아이디어", innovation: seed(24, 30, 65), access: seed(25, 25, 55), premium: seed(26, 30, 60), eco: seed(27, 25, 70), note: "초기 아이디어 기준 포지셔닝 후보" },
+    competitors: [
+      { name: "기존 대중 브랜드", innovation: seed(12, 40, 55), access: seed(13, 30, 60), premium: seed(14, 35, 50), eco: seed(15, 30, 45), note: "대중 유통 접근성이 강한 비교군" },
+      { name: "전문 기능성 브랜드", innovation: seed(16, 40, 40), access: seed(17, 30, 70), premium: seed(18, 35, 40), eco: seed(19, 30, 60), note: "기능 메시지와 효능 근거가 강한 비교군" },
+      { name: "프리미엄 로컬 브랜드", innovation: seed(20, 40, 70), access: seed(21, 30, 45), premium: seed(22, 35, 75), eco: seed(23, 30, 35), note: "지역성·프리미엄 이미지가 강한 비교군" },
+    ],
+    brandSummary: "초기에는 경쟁군 전체를 이기기보다, 원료 스토리와 기능 메시지가 만나는 한 가지 구매 이유를 선명하게 만드는 것이 중요합니다."
+  };
+}
+
+function buildDashboardMetrics(analysis: UiAnalysisResult, color: string) {
+  const backend = analysis.backend;
+  const evidence = backend?.evidence;
+  const confirmedCount = backend?.evidenceSummary?.confirmedCount ?? 0;
+  const regulatoryPass = backend?.regulatoryChecklist?.filter((item) => item.status === "pass" || item.status === "통과").length ?? 0;
+  const regulatoryTotal = backend?.regulatoryChecklist?.length || 3;
+  return [
+    {
+      label: "논문 근거",
+      value: evidence?.paperCount != null ? evidence.paperCount.toLocaleString("ko-KR") : "28",
+      unit: "건",
+      score: Math.min(100, Math.max(22, Math.round(((evidence?.paperCount ?? 28) / 60) * 100))),
+      caption: `${backend?.paperEvidence?.source || "OpenAlex/Crossref"} 기반 문헌 신호`,
+      color
+    },
+    {
+      label: "최근 연구",
+      value: evidence?.recentPaperCount != null ? evidence.recentPaperCount.toLocaleString("ko-KR") : "15",
+      unit: "건",
+      score: Math.min(100, Math.max(20, Math.round(((evidence?.recentPaperCount ?? 15) / 30) * 100))),
+      caption: "최근 5년 연구 비중을 R&D 타이밍으로 반영",
+      color: "#3b82f6"
+    },
+    {
+      label: "특허 밀도",
+      value: evidence?.patentCount != null ? evidence.patentCount.toLocaleString("ko-KR") : "42",
+      unit: "건",
+      score: Math.min(100, Math.max(28, Math.round(((evidence?.patentCount ?? 42) / 80) * 100))),
+      caption: "높을수록 회피설계·청구항 검토 필요",
+      color: "#8b5cf6"
+    },
+    {
+      label: "근거 소스",
+      value: String(confirmedCount || 2),
+      unit: "개",
+      score: Math.min(100, Math.max(35, (confirmedCount || 2) * 24)),
+      caption: backend?.evidenceSummary?.status || "복수 출처 확인",
+      color: "#10b981"
+    },
+    {
+      label: "공급 신뢰",
+      value: evidence?.productionTons != null ? Math.round(evidence.productionTons / 1000).toLocaleString("ko-KR") : "579",
+      unit: "천톤",
+      score: analysis.axes.find((axis) => axis.name === "공급안정성")?.value ?? 78,
+      caption: "제주 원료 생산·가공 통계 기반",
+      color: "#f59e0b"
+    },
+    {
+      label: "규제 게이트",
+      value: `${regulatoryPass}/${regulatoryTotal}`,
+      unit: "단계",
+      score: Math.round((regulatoryPass / regulatoryTotal) * 100) || 34,
+      caption: "원료성분·표시광고·안전성 문서 체크",
+      color: "#0ea5e9"
+    },
+  ];
+}
+
+function downloadCurrentReportPdf(title: string) {
+  const previousTitle = document.title;
+  document.title = `${title || "Jeju Bio R&D Navigator"} 리포트`;
+  window.setTimeout(() => {
+    window.print();
+    window.setTimeout(() => {
+      document.title = previousTitle;
+    }, 400);
+  }, 50);
+}
+
+function DataSourceRegistry({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+        <div>
+          <div className="text-xs font-mono text-muted-foreground">활용 데이터 소스</div>
+          <p className="text-sm text-foreground/55 mt-1">
+            파일명 대신 등록된 데이터 레이어와 연동 개수 기준으로 표시합니다.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="self-start sm:self-auto px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/8 text-primary text-xs font-bold hover:bg-primary/12 transition-colors"
+        >
+          {open ? "등록 소스 닫기" : "등록 소스 보기"}
+        </button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4">
+        {REGISTERED_DATA_OVERVIEW.map((item) => (
+          <div key={item.label} className="rounded-2xl border border-border bg-background/45 p-3">
+            <p className="text-[10px] text-foreground/40 font-bold mb-1">{item.label}</p>
+            <p className="text-xl font-black text-primary leading-none">
+              {item.value}<span className="text-xs ml-0.5">{item.unit}</span>
+            </p>
+            <p className="text-[10px] text-foreground/45 mt-2 leading-snug">{item.detail}</p>
+          </div>
+        ))}
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="border-t border-border overflow-hidden"
+          >
+            <div className="p-4 grid md:grid-cols-2 gap-3">
+              {REGISTERED_DATA_DETAILS.map((group) => (
+                <div key={group.group} className="rounded-2xl border border-border bg-background/50 p-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <h3 className="text-sm font-black">{group.group}</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{group.count}</span>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-xs text-foreground/55 leading-relaxed">
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function generateIdeaData(idea: string, color: string) {
   const h = hashStr(idea);
   const seed = (offset: number, range: number, base: number) => base + ((h >> offset) & 0xff) % range;
@@ -859,12 +1103,7 @@ function generateIdeaData(idea: string, color: string) {
     weighted: seed(i * 3 + 1, 20, 6 + i * 3),
   }));
 
-  const competitors = [
-    { name: "경쟁사 A", innovation: seed(12, 40, 55), access: seed(13, 30, 60), premium: seed(14, 35, 50), eco: seed(15, 30, 45) },
-    { name: "경쟁사 B", innovation: seed(16, 40, 40), access: seed(17, 30, 70), premium: seed(18, 35, 40), eco: seed(19, 30, 60) },
-    { name: "경쟁사 C", innovation: seed(20, 40, 70), access: seed(21, 30, 45), premium: seed(22, 35, 75), eco: seed(23, 30, 35) },
-  ];
-  const myBrand = { name: "내 아이디어", innovation: seed(24, 30, 65), access: seed(25, 25, 55), premium: seed(26, 30, 60), eco: seed(27, 25, 70) };
+  const { competitors, myBrand, brandSummary } = makeBrandBenchmarks(idea, color, seed);
 
   const diff = [
     { label: "원산지 차별성", score: seed(28, 30, 65), detail: "제주 청정 원료의 지리적 표시 보호 — 타 지역 대비 브랜드 신뢰도 +23%" },
@@ -894,7 +1133,7 @@ function generateIdeaData(idea: string, color: string) {
     { name: "틈새 경쟁사", x: seed(43, 30, 30), y: seed(44, 35, 55), desc: "중소 전문 브랜드", ocean: "blue" as "blue" },
   ];
 
-  return { axes, totalScore, patentTrend, competitors, myBrand, diff, whatIf, regulations, oceanProducts, color };
+  return { axes, totalScore, patentTrend, competitors, myBrand, brandSummary, diff, whatIf, regulations, oceanProducts, color };
 }
 
 function CustomIdeaResult({
@@ -916,8 +1155,8 @@ function CustomIdeaResult({
   const decisionSupport = analysis.backend?.decisionSupport;
   const backendRegulations = analysis.backend?.regulatoryChecklist?.map((item) => ({
     item: item.item || "규제·인허가 검토",
-    status: item.status === "needed" ? "주의" : item.status === "review" ? "확인필요" : item.status || "확인필요",
-    detail: item.detail || item.action || item.guide || item.value || "제품화 단계에서 추가 검토가 필요합니다."
+    status: item.status === "pass" || item.status === "통과" ? "통과" : item.status === "needed" || item.status === "주의" ? "주의" : item.status === "review" || item.status === "확인필요" ? "확인필요" : item.status || "확인필요",
+    detail: [item.value, item.detail || item.action || item.guide].filter(Boolean).join(" · ") || "제품화 단계에서 추가 검토가 필요합니다."
   }));
   const backendDiff = intelligence?.differentiationSummary?.map((item) => ({
     label: item.label || "차별성",
@@ -952,11 +1191,37 @@ function CustomIdeaResult({
     oceanProducts: backendOceanProducts?.length ? backendOceanProducts : generatedData.oceanProducts,
     regulations: backendRegulations?.length ? backendRegulations : generatedData.regulations
   };
-  const { axes, totalScore, patentTrend, competitors, myBrand, diff, whatIf, regulations, oceanProducts } = data;
+  const { axes, totalScore, patentTrend, competitors, myBrand, brandSummary, diff, whatIf, regulations, oceanProducts } = data;
+  const dashboardMetrics = buildDashboardMetrics(analysis, color);
+  const startupPath = analysis.backend?.commercialIntelligence?.startupPath?.length
+    ? analysis.backend.commercialIntelligence.startupPath
+    : [
+        { phase: "0-2주", title: "MVP 가설 잠금", action: `${components.material} 원료 스토리와 ${components.func} 효능 메시지를 하나의 랜딩 카피로 압축` },
+        { phase: "3-6주", title: "규제·원료 데이터룸", action: "원료 규격서, 안전성 시험 항목, 표시·광고 가능 표현을 사전 정리" },
+        { phase: "6-10주", title: "GTM 파일럿", action: "제주 로컬 편집숍·온라인 상세페이지·소량 샘플링으로 가격 수용성 검증" },
+      ];
+  const founderBrief = [
+    {
+      title: "초기 MVP 정의",
+      body: `${components.product} 전체가 아니라 세럼·크림·마스크팩 중 하나로 첫 SKU를 좁히면 원료 규격, 사용감 테스트, 고객 메시지 검증 비용이 줄어듭니다.`
+    },
+    {
+      title: "GTM 포지션",
+      body: `${components.material}의 제주 원료 서사를 전면에 두되, 구매 이유는 ${components.func} 효능으로 단순화하는 것이 좋습니다. 브랜드 카피는 “로컬 원료”보다 “기능이 이해되는 로컬 원료”가 더 강합니다.`
+    },
+    {
+      title: "IR/R&D 과제 메시지",
+      body: "지원사업 제안서에는 지역 부산물 고부가화, 원료 표준화, 기능성 근거 축적, 화장품 원료 적용 가능성, 향후 B2B 원료 확장성을 핵심 임팩트로 배치하세요."
+    },
+  ];
 
   const brandAxes = ["혁신성", "접근성", "프리미엄", "친환경성"];
   const toRadar = (obj: { innovation: number; access: number; premium: number; eco: number }) =>
     [obj.innovation, obj.access, obj.premium, obj.eco];
+  const averageRadar = brandAxes.map((_, index) => {
+    const values = competitors.map((brand) => toRadar(brand)[index]).filter((value) => Number.isFinite(value));
+    return Math.round(values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1));
+  });
 
   const RadarMini = ({ datasets, size = 160 }: { datasets: Array<{ label: string; values: number[]; color: string; filled?: boolean }>; size?: number }) => {
     const cx = size / 2, cy = size / 2, r = size * 0.36;
@@ -1040,7 +1305,7 @@ function CustomIdeaResult({
             </div>
             {/* Score box */}
             <div className={`${CARD} p-4 flex flex-col items-center justify-center min-w-[110px]`} style={{ ...CARD_STYLE, background: `linear-gradient(135deg, ${color}15, ${color}05)` }}>
-              <p className="text-[9px] font-bold text-gray-400 mb-1">종합 점수</p>
+              <p className="text-[9px] font-bold text-gray-400 mb-1">R&D Readiness</p>
               <p className="text-4xl font-black leading-none" style={{ color }}>{totalScore}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">/ 100</p>
               <div className="mt-2 px-2 py-1 rounded-full text-[9px] font-bold" style={{ backgroundColor: totalScore >= 70 ? "#dcfce7" : totalScore >= 55 ? "#fef3c7" : "#fee2e2", color: totalScore >= 70 ? "#16a34a" : totalScore >= 55 ? "#d97706" : "#dc2626" }}>
@@ -1050,23 +1315,23 @@ function CustomIdeaResult({
           </div>
 
           <div className={`${CARD} p-4`} style={CARD_STYLE}>
-            <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-2">백엔드 분석 요약</p>
+            <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-2">사업화 인사이트 요약</p>
             <p className="text-sm leading-relaxed text-gray-700">{analysis.summary}</p>
             <div className="mt-3 grid md:grid-cols-3 gap-2">
               <div className="rounded-xl p-3" style={{ backgroundColor: color + "10", border: `1px solid ${color}22` }}>
-                <p className="text-[9px] font-bold text-gray-400 mb-1">사업화 포지션</p>
+                <p className="text-[9px] font-bold text-gray-400 mb-1">시장 진입 포지션</p>
                 <p className="text-xs font-black" style={{ color }}>
                   {analysis.backend?.commercialIntelligence?.readiness?.businessPosition || "준블루오션"}
                 </p>
               </div>
               <div className="rounded-xl p-3" style={{ backgroundColor: color + "10", border: `1px solid ${color}22` }}>
-                <p className="text-[9px] font-bold text-gray-400 mb-1">우선 제품군</p>
+                <p className="text-[9px] font-bold text-gray-400 mb-1">우선 MVP 제품군</p>
                 <p className="text-xs font-black" style={{ color }}>
                   {analysis.backend?.commercialIntelligence?.readiness?.recommendedCategory || components.product}
                 </p>
               </div>
               <div className="rounded-xl p-3" style={{ backgroundColor: color + "10", border: `1px solid ${color}22` }}>
-                <p className="text-[9px] font-bold text-gray-400 mb-1">다음 액션</p>
+                <p className="text-[9px] font-bold text-gray-400 mb-1">Next Milestone</p>
                 <p className="text-xs font-black leading-snug" style={{ color }}>{analysis.recommendation}</p>
               </div>
             </div>
@@ -1081,10 +1346,44 @@ function CustomIdeaResult({
             )}
           </div>
 
+          <div className={`${CARD} p-4`} style={CARD_STYLE}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase">데이터 룸 스냅샷</p>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: color + "14", color }}>
+                창업자 의사결정 지표
+              </span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {dashboardMetrics.map((metric) => (
+                <div key={metric.label} className="rounded-2xl p-3" style={{ backgroundColor: metric.color + "0d", border: `1px solid ${metric.color}22` }}>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <p className="text-[9px] font-bold text-gray-400 mb-0.5">{metric.label}</p>
+                      <p className="text-lg font-black leading-none" style={{ color: metric.color }}>
+                        {metric.value}<span className="text-[10px] ml-0.5">{metric.unit}</span>
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-black" style={{ color: metric.color }}>{metric.score}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/70 overflow-hidden mb-2">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: metric.color }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, Math.max(0, metric.score))}%` }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
+                    />
+                  </div>
+                  <p className="text-[9px] text-gray-500 leading-snug">{metric.caption}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Row 2: 4축 + 오션 매트릭스 */}
           <div className="grid grid-cols-2 gap-3">
             <div className={`${CARD} p-4`} style={CARD_STYLE}>
-              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-3">4축 결과 해석</p>
+              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-3">4축 투자검토 지표</p>
               <div className="space-y-2.5">
                 {axes.map((ax) => (
                   <div key={ax.name}>
@@ -1111,7 +1410,7 @@ function CustomIdeaResult({
           <div className="grid grid-cols-3 gap-3">
             {/* 차별성 */}
             <div className={`${CARD} p-4`} style={CARD_STYLE}>
-              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-3">차별성</p>
+              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-3">차별화 모트</p>
               <div className="space-y-2.5">
                 {diff.slice(0, 3).map((d) => (
                   <div key={d.label}>
@@ -1128,7 +1427,7 @@ function CustomIdeaResult({
             </div>
             {/* 특허 출원 추이 */}
             <div className={`${CARD} p-4`} style={CARD_STYLE}>
-              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-2">특허 출원 추이</p>
+              <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-2">IP 출원 트렌드</p>
               <ResponsiveContainer width="100%" height={100}>
                 <AreaChart data={patentTrend} margin={{ top: 4, right: 4, bottom: 0, left: -25 }}>
                   <defs>
@@ -1149,11 +1448,11 @@ function CustomIdeaResult({
               <p className="text-[9px] font-bold text-gray-400 tracking-widest uppercase mb-1">브랜드 포지셔닝</p>
               <RadarMini datasets={[
                 { label: "내 아이디어", values: toRadar(myBrand), color, filled: true },
-                { label: "경쟁사 평균", values: [65, 62, 58, 52], color: "#94a3b8", filled: false },
+                { label: "실제 브랜드 평균", values: averageRadar, color: "#94a3b8", filled: false },
               ]} size={130} />
               <div className="flex items-center gap-3 mt-1 justify-center">
                 <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} /><span className="text-[9px] text-gray-500">내 아이디어</span></div>
-                <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400" /><span className="text-[9px] text-gray-500">경쟁사</span></div>
+                <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400" /><span className="text-[9px] text-gray-500">실제 브랜드</span></div>
               </div>
             </div>
           </div>
@@ -1166,7 +1465,7 @@ function CustomIdeaResult({
           <div className={`${CARD} p-5`} style={CARD_STYLE}>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">4축 결과 — 원문 근거</span>
+              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">투자검토 4축 — 근거 원문</span>
             </div>
             <div className="space-y-4">
               {axes.map((ax) => (
@@ -1217,13 +1516,17 @@ function CustomIdeaResult({
           <div className={`${CARD} p-5`} style={CARD_STYLE}>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">브랜드 포지셔닝 — 경쟁사 비교</span>
+              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">브랜드 포지셔닝 — 실제 브랜드 벤치마크</span>
+            </div>
+            <div className="mb-4 rounded-2xl p-3" style={{ backgroundColor: color + "08", border: `1px solid ${color}20` }}>
+              <p className="text-[10px] font-bold mb-1" style={{ color }}>포지셔닝 결론</p>
+              <p className="text-[11px] text-gray-600 leading-relaxed">{brandSummary}</p>
             </div>
             <div className="flex gap-4 items-start">
               <div className="shrink-0">
                 <RadarMini datasets={[
                   { label: "내 아이디어", values: toRadar(myBrand), color, filled: true },
-                  ...competitors.map((c, i) => ({ label: c.name, values: toRadar(c), color: ["#94a3b8", "#fbbf24", "#a78bfa"][i], filled: false })),
+                  ...competitors.slice(0, 4).map((c, i) => ({ label: c.name, values: toRadar(c), color: ["#94a3b8", "#fbbf24", "#a78bfa", "#60a5fa"][i], filled: false })),
                 ]} size={180} />
               </div>
               <div className="flex-1 space-y-3">
@@ -1241,7 +1544,9 @@ function CustomIdeaResult({
                         );
                       })}
                     </div>
-                    {brand.isMe && <p className="text-[9px] text-gray-400 mt-2">친환경성 강점 — 제주 청정 원료 기반. 접근성 보완 필요 — 유통 채널 확대 전략 수립 권장.</p>}
+                    <p className="text-[9px] text-gray-400 mt-2">
+                      {brand.note || (brand.isMe ? "제주 원료 스토리와 기능 근거를 결합한 초기 브랜드 가설입니다." : "시장 내 비교 기준으로 활용되는 브랜드 포지션입니다.")}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1330,11 +1635,39 @@ function CustomIdeaResult({
             </div>
           </div>
 
+          {/* 창업자 실행 브리프 */}
+          <div className={`${CARD} p-5`} style={CARD_STYLE}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">창업자 실행 브리프 — MVP·GTM·R&D 과제화</span>
+            </div>
+            <p className="text-[10px] text-gray-400 mb-4">초기 창업자가 바로 의사결정할 수 있도록 실행 순서와 과제화 메시지를 정리했습니다.</p>
+            <div className="grid md:grid-cols-3 gap-3 mb-4">
+              {founderBrief.map((item) => (
+                <div key={item.title} className="rounded-2xl p-4" style={{ backgroundColor: color + "08", border: `1px solid ${color}20` }}>
+                  <p className="text-[11px] font-black mb-2" style={{ color }}>{item.title}</p>
+                  <p className="text-[10px] text-gray-600 leading-relaxed">{item.body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              {startupPath.map((step, index) => (
+                <div key={`${step.phase}-${step.title}-${index}`} className="flex gap-3 rounded-2xl p-3" style={{ backgroundColor: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.05)" }}>
+                  <div className="w-14 shrink-0 text-[10px] font-black" style={{ color }}>{step.phase}</div>
+                  <div>
+                    <p className="text-[11px] font-bold text-gray-800">{step.title}</p>
+                    <p className="text-[10px] text-gray-500 leading-relaxed">{step.action}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* 점수 산출 근거 */}
           <div className={`${CARD} p-5`} style={CARD_STYLE}>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">점수 산출 근거</span>
+              <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">스코어링 트레이스</span>
             </div>
             <div className="overflow-hidden rounded-xl border border-gray-100">
               <table className="w-full text-[10px]">
@@ -1657,6 +1990,7 @@ export default function App() {
   const [productTypeOpen, setProductTypeOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
+  const [dataSourceDetailsOpen, setDataSourceDetailsOpen] = useState(false);
   const toolRef = useRef<HTMLDivElement>(null);
 
   const categorySlides = [
@@ -1694,6 +2028,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
+
+  useEffect(() => {
+    if (activeSection !== "tool") setAiChatOpen(false);
+  }, [activeSection]);
 
   const LOADING_STEPS = [
     "공공데이터 수집 중...",
@@ -2694,13 +3032,13 @@ export default function App() {
             {analysisState === "result" && result && customInput && (
               <div className="relative">
                 <div className="flex justify-end mb-3">
-                  <button
-                    onClick={() => alert("PDF 출력 기능은 추후 업데이트 예정입니다.")}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all hover:shadow-md"
-                    style={{ backgroundColor: result.color + "12", color: result.color, border: `1px solid ${result.color}30` }}
-                  >
-                    <FileText className="w-3 h-3" /> PDF 출력
-                  </button>
+	                  <button
+	                    onClick={() => downloadCurrentReportPdf(customInput || analysisLabel || "사업 구상 분석")}
+	                    className="jevi-pdf-hide flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all hover:shadow-md"
+	                    style={{ backgroundColor: result.color + "12", color: result.color, border: `1px solid ${result.color}30` }}
+	                  >
+	                    <FileText className="w-3 h-3" /> PDF 내려받기
+	                  </button>
                 </div>
                 <CustomIdeaResult idea={customInput} resetTool={resetTool} analysis={result} darkMode={darkMode} />
               </div>
@@ -2728,13 +3066,13 @@ export default function App() {
 
                   {/* PDF button */}
                   <div className="flex justify-end">
-                    <button
-                      onClick={() => alert("PDF 출력 기능은 추후 업데이트 예정입니다.")}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all hover:shadow-md"
-                      style={{ backgroundColor: result.color + "12", color: result.color, border: `1px solid ${result.color}30` }}
-                    >
-                      <FileText className="w-3 h-3" /> PDF 출력
-                    </button>
+	                    <button
+	                      onClick={() => downloadCurrentReportPdf(matName || "원료 분석")}
+	                      className="jevi-pdf-hide flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all hover:shadow-md"
+	                      style={{ backgroundColor: result.color + "12", color: result.color, border: `1px solid ${result.color}30` }}
+	                    >
+	                      <FileText className="w-3 h-3" /> PDF 내려받기
+	                    </button>
                   </div>
 
                   {/* ── 원료 활용도 ── */}
@@ -2919,14 +3257,14 @@ export default function App() {
 
         {/* ─── Floating AI Assistant Button (result only) ─── */}
         <AnimatePresence>
-          {analysisState === "result" && result && (
+          {activeSection === "tool" && analysisState === "result" && result && (
             <motion.button
               initial={{ opacity: 0, scale: 0.7, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.7, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
               onClick={() => setAiChatOpen(true)}
-              className="fixed bottom-6 right-5 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl shadow-xl"
+	              className="jevi-pdf-hide fixed bottom-6 right-5 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl shadow-xl"
               style={{ backgroundColor: result.color, color: "#fff", boxShadow: `0 4px 20px ${result.color}60` }}
               title="AI 어시스턴트"
             >
@@ -2938,11 +3276,11 @@ export default function App() {
 
         {/* ─── AI Assistant Modal ─── */}
         <AnimatePresence>
-          {aiChatOpen && (
+          {activeSection === "tool" && aiChatOpen && (
             <>
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
+	                className="jevi-pdf-hide fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
                 onClick={() => setAiChatOpen(false)}
               />
               <motion.div
@@ -2950,7 +3288,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 40, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 280, damping: 24 }}
-                className="fixed bottom-20 right-5 z-50 w-80 rounded-3xl bg-white shadow-2xl overflow-hidden"
+	                className="jevi-pdf-hide fixed bottom-20 right-5 z-50 w-80 rounded-3xl bg-white shadow-2xl overflow-hidden"
                 style={{ border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 {/* Header */}
@@ -3339,24 +3677,10 @@ export default function App() {
               </div>
             </div>
 
-            {/* Data sources */}
-            <div className="rounded-xl border border-border bg-card overflow-hidden">
-              <div className="px-5 py-3 border-b border-border text-xs font-mono text-muted-foreground">활용 데이터 소스</div>
-              <div className="divide-y divide-border">
-                {[
-                  { name: "제주 농업기술원 원료 생산 통계", year: "2023" },
-                  { name: "KIPRIS 특허 데이터베이스", year: "2024" },
-                  { name: "관세청 수출입 통계", year: "2024" },
-                  { name: "식약처 기능성 원료 인정 DB", year: "2024" },
-                  { name: "해양수산부 수산물 생산량 통계", year: "2023" },
-                ].map((ds) => (
-                  <div key={ds.name} className="px-5 py-3 flex items-center justify-between">
-                    <span className="text-sm text-foreground/70">{ds.name}</span>
-                    <span className="font-mono text-xs text-foreground/35">{ds.year}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <DataSourceRegistry
+              open={dataSourceDetailsOpen}
+              onToggle={() => setDataSourceDetailsOpen((open) => !open)}
+            />
 
             <button
               onClick={() => setActiveSection("home")}
@@ -3442,17 +3766,10 @@ export default function App() {
             {/* Data Sources */}
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">데이터 소스</h3>
-              <div className="rounded-xl border border-border bg-card p-4">
-                <div className="space-y-3">
-                  {DATA_SOURCES.map((ds) => (
-                    <div key={ds.name} className="flex items-center gap-3 p-2.5 rounded-lg bg-background/50">
-                      <div className="text-primary">{ds.icon}</div>
-                      <span className="text-sm text-foreground/70 flex-1">{ds.name}</span>
-                      <span className="font-mono text-xs text-foreground/35">{ds.year}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <DataSourceRegistry
+                open={dataSourceDetailsOpen}
+                onToggle={() => setDataSourceDetailsOpen((open) => !open)}
+              />
             </div>
           </div>
         </DialogContent>
