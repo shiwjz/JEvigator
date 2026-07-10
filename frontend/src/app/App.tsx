@@ -1086,6 +1086,268 @@ function DataSourceRegistry({ open, onToggle }: { open: boolean; onToggle: () =>
   );
 }
 
+function ScoringFrameworkGuide({ id, compact = false }: { id?: string; compact?: boolean }) {
+  const axisRows = [
+    {
+      axis: "기술성 (T)",
+      color: "#2563eb",
+      items: [
+        ["문헌근거지수", "40%", "ScienceON(KISTI) 논문 API", "원료명+핵심효능 검색 결과 수와 최근 5년 논문 비율을 정규화"],
+        ["기술성숙도지수", "30%", "TRL 1~9 기준", "성분 동정, 동물실험, 인체적용시험 등 기술 단계 판단"],
+        ["재현가능성지수", "30%", "공정 표준화 수준", "실험 프로토콜·제조공정·품질 균일성 확보 가능성"],
+      ],
+    },
+    {
+      axis: "시장성 (M)",
+      color: "#16a34a",
+      items: [
+        ["시장성장지수", "35%", "CAGR·시장 보고서·통계", "제품군별 연평균 성장률과 시장 규모를 0~100으로 정규화"],
+        ["경쟁밀도역지수", "35%", "KIPRIS 상표·디자인권 + 웹 검색", "유사 제품·브랜드가 많을수록 감점, HHI식 경쟁밀도 관점 반영"],
+        ["트렌드적합도", "30%", "클린뷰티·비건·고기능성 등", "소비자 트렌드와 제품-시장 적합성(PMF) 부합도 평가"],
+      ],
+    },
+    {
+      axis: "특허위험 / 특허안전성 (P)",
+      color: "#f59e0b",
+      items: [
+        ["유사특허밀도", "60%", "KIPRIS Plus Open API", "원료명+제품군 특허·실용신안 검색, 최근 출원 흐름 가중"],
+        ["핵심클레임중첩도", "40%", "FTO 1차 스크리닝", "상위 특허 청구항을 중첩없음/부분중첩/직접중첩으로 분류"],
+      ],
+    },
+    {
+      axis: "공급안정성 (S)",
+      color: "#7c3aed",
+      items: [
+        ["생산량지수", "40%", "제주데이터허브·공공데이터포털", "최근 5년 평균 생산량을 Min-Max 정규화"],
+        ["계절변동역지수", "30%", "월별 생산량 통계", "CV = 표준편차/평균, 변동이 작을수록 높은 점수"],
+        ["부산물활용률", "30%", "미활용 부산물 비율", "폐기·사료·저가 활용 비율이 높을수록 업사이클링 잠재력 가점"],
+      ],
+    },
+  ];
+
+  const supplyRules = [
+    {
+      title: "생산량지수",
+      formula: "생산량지수 = (평균생산량 - 최솟값) / (최댓값 - 최솟값) × 100",
+      steps: ["최근 5년 연도별 생산량 수집", "5년 평균 생산량 산출", "카테고리 내 최대·최소 기준 정규화", "생산량이 많을수록 높은 점수"],
+      note: "80점 이상은 상업 생산량이 충분한 주요 원료, 30점 이하는 희귀·소규모 원료로 해석합니다.",
+    },
+    {
+      title: "계절변동역지수",
+      formula: "CV = σ / μ, 계절변동역지수 = (1 - CV_정규화) × 100",
+      steps: ["12개월 월별 생산량 수집", "변동계수(CV) 계산", "CV가 낮을수록 안정적으로 환산", "0~100 범위로 정규화"],
+      note: "CV < 0.2는 80~100점, CV 0.2~0.5는 40~80점, CV > 0.5는 0~40점 구간으로 봅니다.",
+    },
+    {
+      title: "부산물활용률",
+      formula: "부산물활용률 = (미활용 부산물량 / 총 부산물 발생량) × 100",
+      steps: ["총 생산량 대비 부산물 발생 비율 파악", "폐기·사료·저가판매·미활용 용도 분류", "미활용·저가활용 비율이 높을수록 높은 점수", "업사이클링 기술 적용 가능성 가산"],
+      note: "폐기·매립 부산물은 90~100점, 사료·퇴비는 60~80점, 일부 활용 식품 부산물은 40~60점, 이미 고부가 활용 중이면 10~30점으로 봅니다.",
+    },
+  ];
+
+  const presets = [
+    ["기본값", "30%", "30%", "20%", "20%", "기술성·시장성을 선행 결정요인으로 우선 반영"],
+    ["식품·건기식", "35%", "25%", "25%", "15%", "인체 안전성, 기능성 입증, 특허 리스크 비중 확대"],
+    ["화장품 원료", "30%", "35%", "15%", "20%", "트렌드 민감도와 시장 진입 속도 비중 확대"],
+    ["농산물 소재", "25%", "30%", "15%", "30%", "계절성·생산량·계약재배 등 공급 안정성 비중 확대"],
+  ];
+
+  const references = [
+    "ScienceON API Gateway — 논문 검색 및 문헌근거지수",
+    "KIPRIS Plus Open API — 특허·실용신안·상표·디자인권 검색",
+    "제주데이터허브 — 감귤 생산·처리 현황 등 지역 원료 데이터",
+    "공공데이터포털 — 농산물 생산량·처리량 통계",
+    "기술성숙도평가(TRA) 업무지침 및 ISO 16290:2013 — TRL 1~9 기준",
+    "AHP(Analytic Hierarchy Process) 기반 기술가치평가 가중치 방법론",
+    "FTO(Freedom to Operate)·Claim Chart — 특허 침해 가능성 1차 스크리닝",
+    "CAGR·HHI·PMF 관점 — 시장 성장률, 경쟁 집중도, 제품-시장 적합성 판단",
+    "ESG·Circular Economy — 농산·식품 부산물 업사이클링 사업성 판단",
+  ];
+
+  return (
+    <div id={id} className={`rounded-3xl border border-primary/25 bg-card/80 backdrop-blur-sm overflow-hidden ${compact ? "" : "scroll-mt-20"}`}>
+      <div className="px-6 py-5 border-b border-border">
+        <p className="text-[11px] font-mono tracking-widest text-primary/70 uppercase mb-1">Scoring Methodology</p>
+        <h2 className="text-xl font-bold tracking-tight">점수 산정 알고리즘</h2>
+        <p className="mt-2 text-xs text-foreground/55 leading-relaxed">
+          점수는 AI가 임의로 만든 값이 아니라, 사용자 입력을 원료·기능·제품군·바이오 분야로 분해한 뒤 공공데이터,
+          논문 근거, 식약처·특허·시장·공급 데이터를 정량 레이어와 AI 검토 레이어로 나눠 산출합니다.
+          AI는 계산된 근거를 바탕으로 설명문과 사업화 전략을 생성합니다.
+        </p>
+      </div>
+
+      <div className="p-6 space-y-5">
+        <div className="grid md:grid-cols-2 gap-3">
+          <div className="rounded-2xl p-5 border border-primary/25 bg-primary/8">
+            <p className="text-xs font-black text-primary mb-2">현재 서비스 적용식</p>
+            <p className="text-sm font-bold leading-relaxed">
+              최종 점수 = 기술성 30% + 시장성 25% + 특허안전성 20% + 공급안정성 20% + 논리적 적합성 5% - 보완 필요 감점
+            </p>
+            <p className="mt-2 text-[11px] text-foreground/50 leading-relaxed">
+              데모 리포트에서는 원료·기능·제품군 연결성을 별도 5%로 분리해, 말이 되는 사업 구상인지까지 상한 규칙에 반영합니다.
+            </p>
+          </div>
+          <div className="rounded-2xl p-5 border border-border bg-background/50">
+            <p className="text-xs font-black text-foreground/70 mb-2">4축 분석 보고서 원형 공식</p>
+            <p className="text-sm font-bold leading-relaxed">
+              종합 점수 = 0.3×T + 0.3×M + 0.2×P + 0.2×S
+            </p>
+            <p className="mt-2 text-[11px] text-foreground/50 leading-relaxed">
+              T는 기술성, M은 시장성, P는 특허위험을 안전성 점수로 반전한 값, S는 공급안정성입니다.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-3">
+          {[
+            ["정량 레이어", "공공데이터에서 추출한 숫자를 고정 수식에 대입합니다. 같은 입력이면 같은 결과가 나오도록 재현성을 확보합니다."],
+            ["AI 검토 레이어", "문헌·특허·시장 문서를 미리 정한 평가 기준으로만 0~100점화합니다. 설명 가능성을 확보하기 위한 보조 판단입니다."],
+          ].map(([title, desc]) => (
+            <div key={title} className="rounded-2xl border border-border bg-background/50 p-4">
+              <h3 className="text-sm font-black mb-2">{title}</h3>
+              <p className="text-xs text-foreground/60 leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-background/50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <h3 className="text-sm font-black">4축 하위 지수와 데이터 근거</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {axisRows.map((axis) => (
+              <div key={axis.axis} className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: axis.color }} />
+                  <h4 className="text-sm font-black" style={{ color: axis.color }}>{axis.axis}</h4>
+                </div>
+                <div className="grid gap-2">
+                  {axis.items.map(([name, weight, source, desc]) => (
+                    <div key={name} className="rounded-xl border border-border bg-card/70 p-3">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-xs font-black">{name}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{weight}</span>
+                        <span className="text-[10px] text-foreground/40">{source}</span>
+                      </div>
+                      <p className="text-[11px] text-foreground/55 leading-relaxed">{desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-violet-300/30 bg-violet-500/5 p-4">
+          <h3 className="text-sm font-black mb-2" style={{ color: "#7c3aed" }}>공급안정성(S) 계산기 상세</h3>
+          <div className="rounded-xl bg-slate-950 text-slate-100 p-4 mb-4">
+            <p className="text-[11px] font-bold text-slate-400 mb-2">핵심 공식</p>
+            <p className="text-sm font-black leading-relaxed">
+              S = 0.40×생산량지수 + 0.30×계절변동역지수 + 0.30×부산물활용률
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-3">
+            {supplyRules.map((rule) => (
+              <div key={rule.title} className="rounded-2xl border border-border bg-card/80 p-4">
+                <h4 className="text-sm font-black mb-2">{rule.title}</h4>
+                <p className="text-[11px] font-mono text-primary leading-relaxed mb-3">{rule.formula}</p>
+                <ol className="space-y-1.5 mb-3">
+                  {rule.steps.map((step, index) => (
+                    <li key={step} className="flex gap-2 text-[11px] text-foreground/55 leading-relaxed">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[9px] font-black text-primary">{index + 1}</span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+                <p className="text-[10px] text-foreground/45 leading-relaxed border-t border-border pt-2">{rule.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-border bg-background/50 p-4">
+            <h3 className="text-sm font-black mb-3">상한 규칙과 점수 해석</h3>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {[
+                ["80~100", "우수", "사업화 적극 검토"],
+                ["65~79", "양호", "일부 보완 권장"],
+                ["50~64", "주의", "복수 요소 개선"],
+                ["0~49", "위험", "전면 재검토"],
+              ].map(([range, label, desc]) => (
+                <div key={range} className="rounded-xl border border-border bg-card/70 p-3 text-center">
+                  <p className="text-[10px] font-mono text-foreground/45">{range}점</p>
+                  <p className="text-sm font-black mt-1">{label}</p>
+                  <p className="text-[10px] text-foreground/45 mt-1">{desc}</p>
+                </div>
+              ))}
+            </div>
+            <ul className="space-y-1.5">
+              {[
+                "원료 기능 미지정: 최대 60점",
+                "제품군 미지정: 최대 65점",
+                "원료와 제품군 모두 낮은 신뢰도: 최대 50점",
+                "논리적으로 부적합한 조합: 최대 55점",
+                "공공데이터·논문·특허 근거가 모두 부족하면 최대 60점",
+                "80점 이상은 최소 2개 이상의 실제 근거 또는 시연 근거 필요",
+              ].map((item) => (
+                <li key={item} className="flex gap-2 text-xs text-foreground/60 leading-relaxed">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-background/50 p-4">
+            <h3 className="text-sm font-black mb-3">산업별 프리셋 가중치</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-[11px]">
+                <thead>
+                  <tr className="text-foreground/45 border-b border-border">
+                    <th className="text-left py-2">프리셋</th>
+                    <th className="text-left py-2">T</th>
+                    <th className="text-left py-2">M</th>
+                    <th className="text-left py-2">P</th>
+                    <th className="text-left py-2">S</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {presets.map(([name, t, m, p, s, reason]) => (
+                    <tr key={name} className="border-b border-border/60 last:border-0">
+                      <td className="py-2 pr-2 font-bold">{name}<p className="font-normal text-foreground/40 mt-0.5">{reason}</p></td>
+                      <td className="py-2 font-mono">{t}</td>
+                      <td className="py-2 font-mono">{m}</td>
+                      <td className="py-2 font-mono">{p}</td>
+                      <td className="py-2 font-mono">{s}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-background/50 p-4">
+          <h3 className="text-sm font-black mb-3">참고문헌·데이터 소스 요약</h3>
+          <div className="grid md:grid-cols-2 gap-2">
+            {references.map((ref) => (
+              <div key={ref} className="flex gap-2 text-[11px] text-foreground/55 leading-relaxed">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
+                {ref}
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[10px] text-foreground/40 leading-relaxed">
+            특허안전성/FTO 평가는 법률 자문을 대체하지 않는 1차 스크리닝이며, 실제 침해 판단은 변리사 또는 특허 전문 변호사의 검토가 필요합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function generateIdeaData(idea: string, color: string) {
   const h = hashStr(idea);
   const seed = (offset: number, range: number, base: number) => base + ((h >> offset) & 0xff) % range;
@@ -1986,8 +2248,6 @@ export default function App() {
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
   const [recommendationMode, setRecommendationMode] = useState(false);
   const [businessIdea, setBusinessIdea] = useState("");
-  const [selectedProductType, setSelectedProductType] = useState<string | null>(null);
-  const [productTypeOpen, setProductTypeOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
   const [dataSourceDetailsOpen, setDataSourceDetailsOpen] = useState(false);
@@ -2048,9 +2308,16 @@ export default function App() {
     const materialLabel = foundMaterial?.label ?? analysisLabel ?? key;
     const requestIdea =
       customText?.trim() ||
-      `${materialLabel} ${selectedProductType || "화장품"} 사업화 분석`;
-    const preferredCategory = selectedProductType || (customText ? null : "화장품");
+      `${materialLabel} 화장품 사업화 분석`;
+    const preferredCategory = customText ? null : "화장품";
     const fallbackResult = ANALYSIS_RESULTS[key] || ANALYSIS_RESULTS.haejo;
+    const activeCategoryHasMaterial = CATEGORIES.find((category) => category.id === activeCategory)
+      ?.materials.some((material) => material.id === key);
+    const materialCategoryId = materialId ? activeCategory : activeCategoryHasMaterial ? activeCategory : CATEGORIES.find((category) =>
+      category.materials.some((material) => material.id === key)
+    )?.id;
+    const categoryColor = categorySlides.find((slide) => slide.id === materialCategoryId)?.color;
+    const resultColor = customText ? "#b86f2a" : (categoryColor || fallbackResult.color);
 
     // 결과 화면에 표시할 라벨 결정
     if (customText) {
@@ -2102,8 +2369,8 @@ export default function App() {
           const backend = await backendAnalysis;
           setResult(
             backend
-              ? mapBackendToUiResult(backend, fallbackResult, fallbackResult.color)
-              : fallbackResult
+              ? mapBackendToUiResult(backend, fallbackResult, resultColor)
+              : { ...fallbackResult, color: resultColor }
           );
           setAnalysisState("result");
         }, 600);
@@ -2258,15 +2525,15 @@ export default function App() {
         style={{ fontFamily: "'Noto Sans KR', 'Inter', sans-serif" }}
       >
       {/* NAV */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-700"
-        style={{
-          backgroundColor: darkMode ? "rgba(8,4,28,0.88)" : "#ffffff",
-          borderColor: darkMode ? "rgba(98,50,180,0.25)" : "#e5e7eb",
-          backdropFilter: darkMode ? "blur(14px)" : undefined,
-          color: darkMode ? "#e8e0ff" : "#111827",
-        }}
-      >
+	      <nav
+	        className="fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-700"
+	        style={{
+	          backgroundColor: darkMode ? "rgba(8,12,46,0.92)" : "#ffffff",
+	          borderColor: darkMode ? "rgba(17,25,186,0.35)" : "#e5e7eb",
+	          backdropFilter: darkMode ? "blur(14px)" : undefined,
+	          color: darkMode ? "#c8d0ff" : "#111827",
+	        }}
+	      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <button
             onClick={() => setActiveSection("home")}
@@ -2275,8 +2542,8 @@ export default function App() {
             <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ backgroundColor: "#b86f2a" }}>
               <Leaf className="w-4 h-4" style={{ color: "#ffffff" }} />
             </div>
-            <span className="font-semibold text-sm tracking-tight" style={{ color: darkMode ? "#e8e0ff" : "#111827" }}>
-              Jeju Bio <span style={{ color: darkMode ? "#c4b5fd" : "#b86f2a" }}>R&D Navigator</span>
+	            <span className="font-semibold text-sm tracking-tight" style={{ color: darkMode ? "#c8d0ff" : "#111827" }}>
+	              Jeju Bio <span style={{ color: darkMode ? "#7b8fff" : "#b86f2a" }}>R&D Navigator</span>
             </span>
           </button>
           <div className="flex items-center gap-1">
@@ -2288,62 +2555,84 @@ export default function App() {
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
-                className="px-3 py-1.5 rounded-md text-sm transition-colors"
-                style={{
-                  backgroundColor: activeSection === s.id ? (darkMode ? "rgba(98,50,180,0.2)" : "rgba(184,111,42,0.1)") : undefined,
-                  color: activeSection === s.id ? (darkMode ? "#c4a8ff" : "#b86f2a") : (darkMode ? "#b8a8d8" : "#6b7280"),
-                }}
+	                className="px-3 py-1.5 rounded-md text-sm transition-colors"
+	                style={{
+	                  backgroundColor: activeSection === s.id ? (darkMode ? "rgba(17,25,186,0.25)" : "rgba(184,111,42,0.1)") : undefined,
+	                  color: activeSection === s.id ? (darkMode ? "#7b8fff" : "#b86f2a") : (darkMode ? "#8899cc" : "#6b7280"),
+	                }}
               >
                 {s.label}
               </button>
             ))}
             <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="ml-2 w-8 h-8 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
-              style={{ color: darkMode ? "#b8a8d8" : "#6b7280" }}
+	              onClick={() => setDarkMode(!darkMode)}
+	              className="ml-2 w-8 h-8 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
+	              style={{ color: darkMode ? "#8899cc" : "#6b7280" }}
               aria-label="다크모드 토글"
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
         </div>
-      </nav>
+	      </nav>
 
-      <main className="pt-14">
-        {/* ─── HOME ─── */}
-        {activeSection === "home" && (
-          <>
-            {/* Fixed background image — home only */}
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: -10,
-                backgroundImage: `url(${darkMode ? bgImageDark : bgImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center top",
-                backgroundRepeat: "no-repeat",
-                backgroundColor: darkMode ? "#0f1a2e" : "rgb(249, 230, 199)",
-              }}
-            >
-              <motion.div
-                initial={false}
-                animate={{ opacity: darkMode ? 1 : 0 }}
-                transition={{ duration: 0.7, ease: "easeInOut" }}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  background:
-                    "linear-gradient(180deg, rgba(4, 7, 18, 0.74), rgba(7, 11, 24, 0.92))",
-                  pointerEvents: "none",
-                }}
-              />
-            </div>
+	      {/* Home background: light/dark assets stay mounted to prevent mode-flash on return */}
+	      <div
+	        style={{
+	          position: "fixed",
+	          top: 0,
+	          left: 0,
+	          right: 0,
+	          bottom: 0,
+	          zIndex: -10,
+	          pointerEvents: "none",
+	          backgroundColor: darkMode ? "#08102c" : "rgb(249, 230, 199)",
+	        }}
+	      >
+	        <motion.div
+	          initial={false}
+	          animate={{ opacity: activeSection === "home" && !darkMode ? 1 : 0 }}
+	          transition={{ duration: 0.45, ease: "easeInOut" }}
+	          style={{
+	            position: "absolute",
+	            inset: 0,
+	            backgroundImage: `url(${bgImage})`,
+	            backgroundSize: "cover",
+	            backgroundPosition: "center top",
+	            backgroundRepeat: "no-repeat",
+	          }}
+	        />
+	        <motion.div
+	          initial={false}
+	          animate={{ opacity: activeSection === "home" && darkMode ? 1 : 0 }}
+	          transition={{ duration: 0.45, ease: "easeInOut" }}
+	          style={{
+	            position: "absolute",
+	            inset: 0,
+	            backgroundImage: `url(${bgImageDark})`,
+	            backgroundSize: "cover",
+	            backgroundPosition: "center top",
+	            backgroundRepeat: "no-repeat",
+	          }}
+	        />
+	        <motion.div
+	          initial={false}
+	          animate={{ opacity: activeSection === "home" && darkMode ? 1 : 0 }}
+	          transition={{ duration: 0.55, ease: "easeInOut" }}
+	          style={{
+	            position: "absolute",
+	            inset: 0,
+	            background:
+	              "linear-gradient(180deg, rgba(4, 7, 18, 0.74), rgba(7, 11, 24, 0.94))",
+	          }}
+	        />
+	      </div>
 
-            {/* Hero */}
+	      <main className="pt-14">
+	        {/* ─── HOME ─── */}
+	        {activeSection === "home" && (
+	          <>
+	            {/* Hero */}
             <section className="relative min-h-[88vh] flex items-center overflow-hidden">
               {/* Background grid */}
               <div
@@ -2477,79 +2766,93 @@ export default function App() {
                     </AnimatePresence>
                   </div>
 
-                  {/* CTA */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        const idea = businessIdea.trim();
+	                  {/* 구조화 미리보기 + CTA — 아이디어 입력 후 등장 */}
+	                  <AnimatePresence>
+	                    {businessIdea.trim() && (
+	                      <motion.div
+	                        key="idea-analysis-actions"
+	                        initial={{ opacity: 0, y: 10, height: 0 }}
+	                        animate={{ opacity: 1, y: 0, height: "auto" }}
+	                        exit={{ opacity: 0, y: -6, height: 0 }}
+	                        transition={{ duration: 0.32, ease: "easeOut" }}
+	                        style={{ overflow: "hidden" }}
+	                        className="space-y-3"
+	                      >
+	                        {/* CTA */}
+	                        <div className="flex gap-2">
+	                          <button
+	                            onClick={() => {
+	                              const idea = businessIdea.trim();
 
-                        // Validation
-                        const MATERIAL_KW = ["감귤","귤","녹차","해조","미역","다시마","후코이단","동백","화산송이","조릿대","한라봉","흑돼지","표고","버섯","비자","막걸리","효모","용암","알로에","콜라겐","유산균","발효","스피룰리나"];
-                        const PRODUCT_KW = ["화장품","코스메틱","식품","음료","세럼","에센스","크림","로션","오일","샴푸","의약품","보충제","영양제","건강","비타민","스킨","뷰티","헤어","마스크","젤","팩","파우더","추출물","소재","원료","제품","아이템","사업","개발"];
-                        const FUNC_KW = ["항산화","보습","항균","미백","면역","항노화","항염","다이어트","피부","에너지","피로","장","소화","탈모","모발","두피","관절","혈관","혈압","혈당","체중","콜레스테롤"];
-                        const GIBBERISH = /^[ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s]{0,3}$|^(.)\1{4,}|^[^가-힣a-zA-Z]+$/;
+	                              // Validation
+	                              const MATERIAL_KW = ["감귤","귤","녹차","해조","미역","다시마","후코이단","동백","화산송이","조릿대","한라봉","흑돼지","표고","버섯","비자","막걸리","효모","용암","알로에","콜라겐","유산균","발효","스피룰리나"];
+	                              const PRODUCT_KW = ["화장품","코스메틱","식품","음료","세럼","에센스","크림","로션","오일","샴푸","의약품","보충제","영양제","건강","비타민","스킨","뷰티","헤어","마스크","젤","팩","파우더","추출물","소재","원료","제품","아이템","사업","개발"];
+	                              const FUNC_KW = ["항산화","보습","항균","미백","면역","항노화","항염","다이어트","피부","에너지","피로","장","소화","탈모","모발","두피","관절","혈관","혈압","혈당","체중","콜레스테롤"];
+	                              const GIBBERISH = /^[ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s]{0,3}$|^(.)\1{4,}|^[^가-힣a-zA-Z]+$/;
 
-                        const hasMaterial = MATERIAL_KW.some(k => idea.includes(k));
-                        const hasProduct = PRODUCT_KW.some(k => idea.includes(k));
-                        const hasFunc = FUNC_KW.some(k => idea.includes(k));
-                        const isGibberish = GIBBERISH.test(idea);
-                        const tooShort = idea.length < 4 && !(hasMaterial && (hasProduct || hasFunc));
-                        const meaningless = !hasMaterial && !hasProduct && !hasFunc && idea.length < 10;
+	                              const hasMaterial = MATERIAL_KW.some(k => idea.includes(k));
+	                              const hasProduct = PRODUCT_KW.some(k => idea.includes(k));
+	                              const hasFunc = FUNC_KW.some(k => idea.includes(k));
+	                              const isGibberish = GIBBERISH.test(idea);
+	                              const tooShort = idea.length < 4 && !(hasMaterial && (hasProduct || hasFunc));
+	                              const meaningless = !hasMaterial && !hasProduct && !hasFunc && idea.length < 10;
 
-                        if (isGibberish || tooShort || meaningless) {
-                          setIdeaInputError(true);
-                          return;
-                        }
+	                              if (isGibberish || tooShort || meaningless) {
+	                                setIdeaInputError(true);
+	                                return;
+	                              }
 
-                        setIdeaInputError(false);
-                        setCustomInput(idea);
-                        setSelectedMaterial(null);
-                        setRecommendationMode(false);
-                        setToolStep("select");
-                        runAnalysis(undefined, idea);
-                      }}
-                      disabled={!businessIdea.trim()}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      공공데이터 분석 시작 <ArrowRight className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => { setRecommendationMode(false); setActiveSection("home"); }}
-                      className={`px-4 py-2.5 border rounded-lg text-sm transition-colors ${
-                        darkMode
-                          ? "border-white/10 text-white/55 hover:text-white hover:border-primary/50"
-                          : "border-border text-foreground/60 hover:text-foreground hover:border-primary/50"
-                      }`}
-                    >
-                      취소
-                    </button>
-                  </div>
+	                              setIdeaInputError(false);
+	                              setCustomInput(idea);
+	                              setSelectedMaterial(null);
+	                              setRecommendationMode(false);
+	                              setToolStep("select");
+	                              runAnalysis(undefined, idea);
+	                            }}
+	                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors"
+	                          >
+	                            공공데이터 분석 시작 <ArrowRight className="w-4 h-4" />
+	                          </button>
+	                          <button
+	                            onClick={() => { setRecommendationMode(false); setActiveSection("home"); }}
+	                            className={`px-4 py-2.5 border rounded-lg text-sm transition-colors ${
+	                              darkMode
+	                                ? "border-white/10 text-white/55 hover:text-white hover:border-primary/50"
+	                                : "border-border text-foreground/60 hover:text-foreground hover:border-primary/50"
+	                            }`}
+	                          >
+	                            취소
+	                          </button>
+	                        </div>
 
-                  {/* 구조화 미리보기 */}
-                  <div className={`rounded-2xl border backdrop-blur-sm overflow-hidden ${
-                    darkMode ? "border-white/10 bg-slate-950/65" : "border-border bg-card/60"
-                  }`}>
-                    <div className={`px-4 py-2.5 border-b flex items-center gap-2 ${darkMode ? "border-white/10" : "border-border"}`}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      <p className={`text-[11px] font-mono ${darkMode ? "text-white/65" : "text-foreground/50"}`}>입력 구조화 미리보기</p>
-                      <span className={`ml-auto text-[10px] ${darkMode ? "text-white/35" : "text-foreground/30"}`}>Gemini 의미 매핑 준비</span>
-                    </div>
-                    <div className="px-4 py-3 space-y-2">
-                      {[
-                        { key: "원료", value: businessIdea ? previewComponents.material : "입력 대기" },
-                        { key: "기능", value: businessIdea ? previewComponents.func : "입력 대기" },
-                        { key: "제품군", value: businessIdea ? previewComponents.product : "입력 대기" },
-                      ].map(({ key, value }) => (
-                        <div key={key} className="flex items-start gap-3">
-                          <span className={`text-[10px] font-mono w-12 shrink-0 pt-0.5 ${darkMode ? "text-white/35" : "text-foreground/35"}`}>{key}</span>
-                          <span className={`text-xs leading-relaxed font-semibold ${darkMode ? "text-white/70" : "text-foreground/60"}`}>{value}</span>
-                        </div>
-                      ))}
-                      <p className={`text-[10px] pt-1 leading-relaxed border-t mt-2 ${darkMode ? "text-white/35 border-white/10" : "text-foreground/30 border-border"}`}>
-                        실제 분석 시 백엔드가 표준 원료·기능·제품군으로 다시 확정합니다.
-                      </p>
-                    </div>
-                  </div>
+	                        {/* 구조화 미리보기 */}
+	                        <div className={`rounded-2xl border backdrop-blur-sm overflow-hidden ${
+	                          darkMode ? "border-white/10 bg-slate-950/65" : "border-border bg-card/60"
+	                        }`}>
+	                          <div className={`px-4 py-2.5 border-b flex items-center gap-2 ${darkMode ? "border-white/10" : "border-border"}`}>
+	                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+	                            <p className={`text-[11px] font-mono ${darkMode ? "text-white/65" : "text-foreground/50"}`}>입력 구조화 미리보기</p>
+	                            <span className={`ml-auto text-[10px] ${darkMode ? "text-white/35" : "text-foreground/30"}`}>Gemini 의미 매핑 준비</span>
+	                          </div>
+	                          <div className="px-4 py-3 space-y-2">
+	                            {[
+	                              { key: "원료", value: previewComponents.material },
+	                              { key: "기능", value: previewComponents.func },
+	                              { key: "제품군", value: previewComponents.product },
+	                            ].map(({ key, value }) => (
+	                              <div key={key} className="flex items-start gap-3">
+	                                <span className={`text-[10px] font-mono w-12 shrink-0 pt-0.5 ${darkMode ? "text-white/35" : "text-foreground/35"}`}>{key}</span>
+	                                <span className={`text-xs leading-relaxed font-semibold ${darkMode ? "text-white/70" : "text-foreground/60"}`}>{value}</span>
+	                              </div>
+	                            ))}
+	                            <p className={`text-[10px] pt-1 leading-relaxed border-t mt-2 ${darkMode ? "text-white/35 border-white/10" : "text-foreground/30 border-border"}`}>
+	                              실제 분석 시 백엔드가 표준 원료·기능·제품군으로 다시 확정합니다.
+	                            </p>
+	                          </div>
+	                        </div>
+	                      </motion.div>
+	                    )}
+	                  </AnimatePresence>
 
                   {/* 예시로 시작하기 */}
                   <div className="space-y-2">
@@ -2702,9 +3005,9 @@ export default function App() {
             {/* Idle: material selection */}
             {analysisState === "idle" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
-                {/* Category Selection - Fullscreen Slider */}
-                {selectionStep === "category" && (
-                  <div className="fixed inset-0 z-50 overflow-hidden" style={{ background: "transparent" }}>
+	                {/* Category Selection - Fullscreen Slider */}
+	                {selectionStep === "category" && (
+	                  <div className="fixed inset-0 z-50 overflow-hidden" style={{ background: "#000" }}>
                     {/* Home Button */}
                     <button
                       onClick={() => {
@@ -2720,88 +3023,94 @@ export default function App() {
                       <Home className="w-6 h-6 text-white" />
                     </button>
 
-                    <AnimatePresence initial={false} mode="sync" custom={slideDirection}>
-                      <motion.div
-                        key={currentSlide}
-                        custom={slideDirection}
-                        initial={{ x: slideDirection > 0 ? "100%" : "-100%" }}
-                        animate={{ x: 0 }}
-                        exit={{ x: slideDirection > 0 ? "-100%" : "100%" }}
-                        transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
-                        className="absolute inset-0"
-                        style={{ background: "transparent" }}
-                      >
-                        {categorySlides[currentSlide].bgVideo && (
-                          <SeamlessVideoBackground videoSrc={categorySlides[currentSlide].bgVideo} />
-                        )}
-                        {!categorySlides[currentSlide].bgVideo && categorySlides[currentSlide].bgImage && (
-                          <div className="absolute inset-0 overflow-hidden">
-                            <ImageWithFallback
-                              src={categorySlides[currentSlide].bgImage}
-                              alt="background"
-                              className="w-full h-full object-cover"
-                              style={{ filter: "brightness(0.85) saturate(1.2)", transform: "translateZ(0)" }}
-                            />
-                          </div>
-                        )}
+	                    {/* 모든 카테고리 배경을 동시에 마운트해 이미지/영상 로딩과 전환 잔상을 줄입니다. */}
+	                    {categorySlides.map((slide, index) => (
+	                      <div
+	                        key={slide.id}
+	                        className="absolute inset-0"
+	                        style={{
+	                          opacity: index === currentSlide ? 1 : 0,
+	                          transition: "opacity 0.35s ease-in-out",
+	                          pointerEvents: "none",
+	                        }}
+	                      >
+	                        {slide.bgVideo && (
+	                          <SeamlessVideoBackground videoSrc={slide.bgVideo} />
+	                        )}
+	                        {!slide.bgVideo && slide.bgImage && (
+	                          <div className="absolute inset-0 overflow-hidden">
+	                            <ImageWithFallback
+	                              src={slide.bgImage}
+	                              alt="background"
+	                              loading="eager"
+	                              decoding="async"
+	                              className="w-full h-full object-cover"
+	                              style={{ filter: "brightness(0.85) saturate(1.2)", transform: "translateZ(0)" }}
+	                            />
+	                          </div>
+	                        )}
+	                      </div>
+	                    ))}
 
-                        {/* Content */}
-                        <div className="relative z-10 flex flex-col items-center justify-between h-full text-center px-8 py-24">
-                          <div className="flex-1 flex flex-col items-center justify-center">
-                            <motion.div
-                              initial={{ y: 20, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-                            >
-                              <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
-                                {categorySlides[currentSlide].label}
-                              </h2>
-                              <p className="text-xl md:text-2xl mb-12 text-white/80">
-                                {categorySlides[currentSlide].sub}
-                              </p>
-                            </motion.div>
-                          </div>
+	                    {/* Content */}
+	                    <AnimatePresence initial={false} mode="wait" custom={slideDirection}>
+	                      <motion.div
+	                        key={currentSlide}
+	                        custom={slideDirection}
+	                        initial={{ opacity: 0, x: slideDirection > 0 ? 48 : -48 }}
+	                        animate={{ opacity: 1, x: 0 }}
+	                        exit={{ opacity: 0, x: slideDirection > 0 ? -48 : 48 }}
+	                        transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+	                        className="absolute inset-0 z-10"
+	                        style={{ pointerEvents: "none" }}
+	                      >
+	                        <div className="relative z-10 flex flex-col items-center justify-between h-full text-center px-8 py-24" style={{ pointerEvents: "all" }}>
+	                          <div className="flex-1 flex flex-col items-center justify-center">
+	                            <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
+	                              {categorySlides[currentSlide].label}
+	                            </h2>
+	                            <p className="text-xl md:text-2xl mb-12 text-white/80">
+	                              {categorySlides[currentSlide].sub}
+	                            </p>
+	                          </div>
 
-                          <motion.button
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-                            onClick={() => { setActiveCategory(categorySlides[currentSlide].id); setSelectionStep("material"); }}
-                            className="px-12 py-4 bg-white text-gray-900 text-xl font-bold rounded-full hover:scale-105 transition-transform shadow-2xl mb-16"
-                          >
-                            선택하기
-                          </motion.button>
-                        </div>
+	                          <button
+	                            onClick={() => { setActiveCategory(categorySlides[currentSlide].id); setSelectionStep("material"); }}
+	                            className="px-12 py-4 bg-white text-gray-900 text-xl font-bold rounded-full hover:scale-105 transition-transform shadow-2xl mb-16"
+	                          >
+	                            선택하기
+	                          </button>
+	                        </div>
+	                      </motion.div>
+	                    </AnimatePresence>
 
-                        {/* Slide Indicators */}
-                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                          {categorySlides.map((_, index) => (
-                            <button
-                              key={index}
-                              onClick={() => { setSlideDirection(index > currentSlide ? 1 : -1); setCurrentSlide(index); }}
-                              className={`h-2 rounded-full transition-all ${index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/40"}`}
-                            />
-                          ))}
-                        </div>
+	                    {/* Slide Indicators */}
+	                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+	                      {categorySlides.map((_, index) => (
+	                        <button
+	                          key={index}
+	                          onClick={() => { setSlideDirection(index > currentSlide ? 1 : -1); setCurrentSlide(index); }}
+	                          className={`h-2 rounded-full transition-all ${index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/40"}`}
+	                        />
+	                      ))}
+	                    </div>
 
-                        {/* Top Navigation Tabs */}
-                        <div className="absolute top-8 left-1/2 -translate-x-1/2 flex gap-6 z-20">
-                          {categorySlides.map((slide, index) => (
-                            <button
-                              key={slide.id}
-                              onClick={() => { setSlideDirection(index > currentSlide ? 1 : -1); setCurrentSlide(index); }}
-                              className={`px-6 py-2 text-sm font-medium transition-all whitespace-nowrap ${
-                                index === currentSlide ? "text-white border-b-2 border-white" : "text-white/60 hover:text-white"
-                              }`}
-                            >
-                              {slide.label}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                )}
+	                    {/* Top Navigation Tabs */}
+	                    <div className="absolute top-8 left-1/2 -translate-x-1/2 flex gap-6 z-20">
+	                      {categorySlides.map((slide, index) => (
+	                        <button
+	                          key={slide.id}
+	                          onClick={() => { setSlideDirection(index > currentSlide ? 1 : -1); setCurrentSlide(index); }}
+	                          className={`px-6 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+	                            index === currentSlide ? "text-white border-b-2 border-white" : "text-white/60 hover:text-white"
+	                          }`}
+	                        >
+	                          {slide.label}
+	                        </button>
+	                      ))}
+	                    </div>
+	                  </div>
+	                )}
 
                 {/* Material Selection */}
                 {selectionStep === "material" && (
@@ -2856,7 +3165,7 @@ export default function App() {
                               key={m.id}
                               initial={{ opacity: 0, y: 24 }}
                               animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: idx * 0.07, duration: 0.45, ease: "easeOut" }}
+	                              transition={{ delay: idx * 0.03, duration: 0.22, ease: "easeOut" }}
                               onClick={() => { setSelectedMaterial(m.id); setCustomInput(""); runAnalysis(m.id); }}
                               className="group relative bg-white rounded-3xl text-left overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                               style={{ border: "1px solid rgba(0,0,0,0.06)" }}
@@ -2903,11 +3212,13 @@ export default function App() {
                                     transition: "border-radius 0.6s ease",
                                   }}
                                 >
-                                  <ImageWithFallback
-                                    src={m.image}
-                                    alt={m.name}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                  />
+	                                  <ImageWithFallback
+	                                    src={m.image}
+	                                    alt={m.name}
+	                                    loading="eager"
+	                                    decoding="async"
+	                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+	                                  />
                                 </div>
                               </div>
 
@@ -2989,10 +3300,10 @@ export default function App() {
                 </div>
 
                 {/* Label + step text */}
-                <div className="text-center space-y-1.5 w-full max-w-xs">
-                  <p className="font-bold text-base text-foreground tracking-tight">
-                    {analysisLabel || "소재"} <span className="text-primary">분석 중</span>
-                  </p>
+	                <div className="text-center space-y-1.5 w-full max-w-xs">
+	                  <p className="font-bold text-base text-foreground tracking-tight">
+	                    {customInput ? "사업 구상 분석 중" : "원료 분석 중"}
+	                  </p>
                   <motion.p
                     key={loadingStep}
                     initial={{ opacity: 0, y: 4 }}
@@ -3627,55 +3938,7 @@ export default function App() {
               </div>
             </div>
 
-            <div id="algorithmMethodology" className="rounded-3xl border border-primary/25 bg-card/80 backdrop-blur-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-border">
-                <p className="text-[11px] font-mono tracking-widest text-primary/70 uppercase mb-1">Scoring Methodology</p>
-                <h2 className="text-xl font-bold tracking-tight">점수 산정 알고리즘</h2>
-                <p className="mt-2 text-xs text-foreground/55 leading-relaxed">
-                  본 점수는 AI가 임의로 생성한 값이 아니라, 사용자 입력을 원료·기능·제품군·바이오 분야로 분해한 뒤
-                  공공데이터, 논문 근거, 식약처 원료 DB, 특허 트렌드, 내부 룰 기반 적합성 검사를 반영해 산출됩니다.
-                  AI는 계산된 근거를 바탕으로 설명문과 사업화 전략을 생성합니다.
-                </p>
-              </div>
-              <div className="p-6 space-y-5">
-                <div className="rounded-2xl p-5 border border-primary/25 bg-primary/8">
-                  <p className="text-xs font-black text-primary mb-2">계산식</p>
-                  <p className="text-sm font-bold leading-relaxed">
-                    최종 점수 = 기술성 30% + 시장성 25% + 특허안전성 20% + 공급안정성 20% + 논리적 적합성 5% - 보완 필요 감점
-                  </p>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {[
-                    ["기술성", ["논문 근거 수", "최근 연구 비율", "기능 키워드 일치도", "원료와 기능의 연결성"]],
-                    ["시장성", ["제품군 적합성", "초기 시장 진입 난이도", "트렌드 키워드", "유사 제품군의 시장 확장성"]],
-                    ["특허안전성", ["관련 특허 수", "최근 5년 출원 비율", "출원 증가율", "키워드 유사도", "경쟁 강도"]],
-                    ["공급안정성", ["제주 원료 공공데이터 존재 여부", "생산량/처리량 근거", "부산물 활용 가능성", "지역 원료 지속성"]],
-                    ["논리적 적합성", ["원료와 제품군의 연결성", "기능 키워드와 제품군의 일치도", "바이오 분야 적합성", "사업화 방향의 자연스러움"]],
-                    ["상한 규칙", ["원료 기능 미지정: 최대 60점", "제품군 미지정: 최대 65점", "논리적으로 부적합한 조합: 최대 55점", "근거가 모두 부족하면 최대 60점", "80점 이상은 최소 2개 이상의 실제/시연 근거 필요"]],
-                  ].map(([title, items]) => (
-                    <div key={title as string} className="rounded-2xl border border-border bg-background/50 p-4">
-                      <h3 className="text-sm font-black mb-2">{title as string}</h3>
-                      <ul className="space-y-1.5">
-                        {(items as string[]).map((item) => (
-                          <li key={item} className="flex gap-2 text-xs text-foreground/60 leading-relaxed">
-                            <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/70 shrink-0" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-2xl border border-border bg-background/50 p-4">
-                  <h3 className="text-sm font-black mb-2">현재 결과에 대한 산출 해석</h3>
-                  <p className="text-xs text-foreground/60 leading-relaxed">
-                    기술성은 논문 근거와 기능 키워드 일치도, 시장성은 제품군 적합성과 초기 진입 가능성,
-                    특허안전성은 최근 출원 흐름과 경쟁 강도, 공급안정성은 제주 원료 공공데이터와 활용 가능성,
-                    논리적 적합성은 원료·기능·제품군의 연결성을 기준으로 산정합니다.
-                  </p>
-                </div>
-              </div>
-            </div>
+	            <ScoringFrameworkGuide id="algorithmMethodology" />
 
             <DataSourceRegistry
               open={dataSourceDetailsOpen}
@@ -3761,10 +4024,12 @@ export default function App() {
                   </div>
                 ))}
               </div>
-            </div>
+	            </div>
 
-            {/* Data Sources */}
-            <div className="space-y-4">
+	            <ScoringFrameworkGuide compact />
+
+	            {/* Data Sources */}
+	            <div className="space-y-4">
               <h3 className="font-semibold text-lg">데이터 소스</h3>
               <DataSourceRegistry
                 open={dataSourceDetailsOpen}

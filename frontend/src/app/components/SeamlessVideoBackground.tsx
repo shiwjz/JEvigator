@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface SeamlessVideoBackgroundProps {
   videoSrc: string;
@@ -7,22 +7,19 @@ interface SeamlessVideoBackgroundProps {
 export function SeamlessVideoBackground({ videoSrc }: SeamlessVideoBackgroundProps) {
   const video1Ref = useRef<HTMLVideoElement>(null);
   const video2Ref = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeVideo, setActiveVideo] = useState<1 | 2>(1);
 
   useEffect(() => {
     const video1 = video1Ref.current;
     const video2 = video2Ref.current;
-    const container = containerRef.current;
 
-    if (!video1 || !video2 || !container) return;
+    if (!video1 || !video2) return;
 
     const handleTimeUpdate = (video: HTMLVideoElement, otherVideo: HTMLVideoElement) => {
       const currentTime = video.currentTime;
       const duration = video.duration;
 
       // 비디오가 끝나기 1.5초 전부터 크로스페이드 시작
-      if (duration - currentTime < 1.5) {
+      if (Number.isFinite(duration) && duration - currentTime < 1.5) {
         const fadeProgress = (1.5 - (duration - currentTime)) / 1.5;
         
         // 현재 비디오는 페이드 아웃
@@ -47,42 +44,29 @@ export function SeamlessVideoBackground({ videoSrc }: SeamlessVideoBackgroundPro
     video1.addEventListener("timeupdate", onVideo1TimeUpdate);
     video2.addEventListener("timeupdate", onVideo2TimeUpdate);
 
-    // IntersectionObserver로 화면에 보일 때만 재생
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            video1.play().catch(() => {
-              // 자동 재생 실패 시 조용히 처리
-            });
-          } else {
-            video1.pause();
-            video2.pause();
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(container);
+    // 배경 전환 때 까만 화면이 길게 보이지 않도록 즉시 버퍼링/재생을 시도합니다.
+    video1.play().catch(() => {
+      // 자동 재생 실패 시 조용히 처리
+    });
 
     return () => {
       video1.removeEventListener("timeupdate", onVideo1TimeUpdate);
       video2.removeEventListener("timeupdate", onVideo2TimeUpdate);
-      observer.disconnect();
     };
   }, [videoSrc]);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
       <video
         ref={video1Ref}
         muted
         playsInline
+        preload="auto"
+        loop={false}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
           filter: "brightness(0.75) saturate(1.3)",
-          transition: "opacity 0.1s linear",
+          transition: "opacity 0.15s linear",
         }}
       >
         <source src={videoSrc} type="video/mp4" />
@@ -91,11 +75,13 @@ export function SeamlessVideoBackground({ videoSrc }: SeamlessVideoBackgroundPro
         ref={video2Ref}
         muted
         playsInline
+        preload="auto"
+        loop={false}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
           filter: "brightness(0.75) saturate(1.3)",
           opacity: 0,
-          transition: "opacity 0.1s linear",
+          transition: "opacity 0.15s linear",
         }}
       >
         <source src={videoSrc} type="video/mp4" />
@@ -104,7 +90,7 @@ export function SeamlessVideoBackground({ videoSrc }: SeamlessVideoBackgroundPro
       <div 
         className="absolute inset-0" 
         style={{
-          background: "linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(14, 165, 233, 0.4) 100%)"
+          background: "linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 165, 233, 0.35) 100%)"
         }}
       />
     </div>
