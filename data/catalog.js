@@ -65,7 +65,9 @@ export const FUNCTIONS = [
   "구강 관리",
   "위생",
   "피부 보호",
-  "수질정화/흡착"
+  "수질정화/흡착",
+  "소재화/업사이클링",
+  "천연 색소/착색"
 ];
 
 export const CATEGORY_DEFINITIONS = {
@@ -83,7 +85,7 @@ export const CATEGORY_DEFINITIONS = {
   },
   "기능성 식품/음료": {
     forms: ["차", "스낵", "발효음료"],
-    functions: ["항산화", "장건강", "피로회복", "영양 보충"]
+    functions: ["항산화", "장건강", "피로회복", "영양 보충", "천연 색소/착색"]
   },
   "의약외품": {
     forms: ["구강케어", "위생 관련 제품"],
@@ -103,7 +105,7 @@ export const CATEGORY_DEFINITIONS = {
   },
   "친환경 소재/바이오 플라스틱": {
     forms: ["포장재", "바이오 플라스틱", "필름", "친환경 복합소재", "정수 필터", "흡착제"],
-    functions: ["수질정화/흡착", "항균/항미생물"]
+    functions: ["소재화/업사이클링", "수질정화/흡착", "항균/항미생물"]
   },
   "농자재/친환경 비료": {
     forms: ["친환경 비료", "토양개량제", "작물 생장 보조제"],
@@ -155,12 +157,12 @@ export const RECOMMENDED_IDEAS = [
     accent: "ocean"
   },
   {
-    id: "blue-hijiki-food",
+    id: "blue-seaweed-color-snack",
     bioType: "Blue Bio",
-    title: "톳 미네랄 기능성 식품",
-    description: "제주 해조류의 영양 자원을 간편식에 적용",
-    ingredient: "톳",
-    functions: ["영양 보충"],
+    title: "제주 해조류 천연 색소 기능성 스낵",
+    description: "감태·김·미역 등 제주 해조류의 색소와 지역 스토리를 스낵에 적용",
+    ingredient: "제주 해조류 복합물",
+    functions: ["천연 색소/착색", "영양 보충"],
     categories: ["기능성 식품/음료"],
     accent: "ocean"
   },

@@ -14,7 +14,16 @@ export default async function handler(request, response) {
       body.extraction && typeof body.extraction === "object" ? body.extraction : null;
     const preferredCategory =
       typeof body.preferredCategory === "string" ? body.preferredCategory : null;
-    const result = await runAnalysis({ idea, extraction, preferredCategory });
+    const companyProfile =
+      body.companyProfile && typeof body.companyProfile === "object"
+        ? body.companyProfile
+        : null;
+    const result = await runAnalysis({
+      idea,
+      extraction,
+      preferredCategory,
+      companyProfile
+    });
     response.status(200).json(result);
   } catch (error) {
     response.status(500).json({

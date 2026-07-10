@@ -21,8 +21,9 @@
           </span>
         </button>
         <nav class="topnav" aria-label="주요 메뉴">
+          <button type="button" data-go="diagnosis">기업 진단</button>
           <button type="button" data-go="input">직접 분석</button>
-          <button type="button" data-go="ideas">추천 아이디어</button>
+          <button type="button" data-go="ideas">추천 원료</button>
           <button class="status-trigger" id="statusButton" type="button">
             <span class="live-dot" aria-hidden="true"></span>
             데이터 연결
@@ -41,13 +42,13 @@
                 공급안정성의 네 가지 근거로 빠르게 검토합니다.
               </p>
               <div class="hero-flow" aria-label="서비스 분석 흐름">
-                <span>아이디어 구조화</span>
+                <span>라이트 기업진단</span>
                 <i aria-hidden="true">→</i>
-                <span>공공데이터 조회</span>
+                <span>4축 근거 분석</span>
                 <i aria-hidden="true">→</i>
-                <span>4축 점수 계산</span>
+                <span>포지셔닝</span>
                 <i aria-hidden="true">→</i>
-                <span>AI 결과 설명</span>
+                <span>AI 코파일럿</span>
               </div>
             </div>
           </div>
@@ -61,6 +62,16 @@
               <article class="entry-option">
                 <span class="option-number">01</span>
                 <div>
+                  <h3>R&amp;D를 어디서 시작할지 막막한가요?</h3>
+                  <p>5문항으로 현재 단계를 확인하고 먼저 할 일을 정리합니다.</p>
+                </div>
+                <button class="primary-button" type="button" data-go="diagnosis">
+                  라이트 기업진단 <span aria-hidden="true">→</span>
+                </button>
+              </article>
+              <article class="entry-option">
+                <span class="option-number">02</span>
+                <div>
                   <h3>아이디어가 이미 있으신가요?</h3>
                   <p>자유 문장으로 입력하면 표준 원료·기능·제품군으로 구조화합니다.</p>
                 </div>
@@ -69,17 +80,89 @@
                 </button>
               </article>
               <article class="entry-option">
-                <span class="option-number">02</span>
+                <span class="option-number">03</span>
                 <div>
                   <h3>아직 사업 구상이 없나요?</h3>
-                  <p>제주의 Green, Blue, Red, White Bio 추천 사례에서 골라보세요.</p>
+                  <p>제주의 Green, Blue, Red, White Bio 추천 원료에서 출발해보세요.</p>
                 </div>
                 <button class="secondary-button" type="button" data-go="ideas">
-                  아이디어 구상하기 <span aria-hidden="true">→</span>
+                  추천 원료 찾기 <span aria-hidden="true">→</span>
                 </button>
               </article>
             </div>
           </div>
+        </section>
+
+        <section class="view workspace-view" id="diagnosisView" data-view="diagnosis">
+          <div class="page-heading">
+            <button class="back-button" type="button" data-go="home">← 처음으로</button>
+            <p class="eyebrow">LIGHT COMPANY DIAGNOSIS</p>
+            <h1>지금 필요한 R&amp;D 첫 단계를 찾아보세요.</h1>
+            <p>기업을 평가하는 절차가 아니라, 다음에 확인할 일을 정리하는 간이 진단입니다.</p>
+          </div>
+
+          <form class="diagnosis-form" id="diagnosisForm">
+            <label>
+              <span><b>01</b> 현재 기업 단계</span>
+              <select name="companyStage" required>
+                <option value="">선택하세요</option>
+                <option value="pre">예비창업 또는 아이디어 단계</option>
+                <option value="early">창업 3년 이내</option>
+                <option value="established">창업 4년 이상</option>
+              </select>
+            </label>
+            <label>
+              <span><b>02</b> 활용할 원료 준비 정도</span>
+              <select name="hasIngredient" required>
+                <option value="">선택하세요</option>
+                <option value="none">아직 정하지 못함</option>
+                <option value="candidate">후보 원료가 있음</option>
+                <option value="secured">공급처 또는 보유 원료가 있음</option>
+              </select>
+            </label>
+            <label>
+              <span><b>03</b> 보유·출원 특허 수</span>
+              <input name="patentCount" type="number" min="0" max="20" value="0" required />
+            </label>
+            <label>
+              <span><b>04</b> R&amp;D 수행 경험</span>
+              <select name="rndExperience" required>
+                <option value="">선택하세요</option>
+                <option value="none">없음</option>
+                <option value="internal">자체 시험 또는 공동연구 경험</option>
+                <option value="government">정부 R&amp;D 과제 수행 경험</option>
+              </select>
+            </label>
+            <label>
+              <span><b>05</b> 시장 검증 경험</span>
+              <select name="marketResearch" required>
+                <option value="">선택하세요</option>
+                <option value="none">없음</option>
+                <option value="desk">자료·경쟁제품 조사 경험</option>
+                <option value="interview">고객 인터뷰·판매 테스트 경험</option>
+              </select>
+            </label>
+            <div class="diagnosis-submit">
+              <p>응답은 브라우저에만 임시 저장되며 API 키나 민감정보를 요구하지 않습니다.</p>
+              <button class="primary-button" type="submit">현재 단계 확인 <span aria-hidden="true">→</span></button>
+            </div>
+          </form>
+
+          <section class="diagnosis-output" id="diagnosisOutput" hidden aria-live="polite">
+            <div>
+              <p class="eyebrow">YOUR NEXT STEP</p>
+              <h2 id="diagnosisStage">-</h2>
+              <p id="diagnosisSummary">-</p>
+            </div>
+            <div class="diagnosis-actions">
+              <h3>지금 먼저 할 일</h3>
+              <ol id="diagnosisActions"></ol>
+              <p id="diagnosisGuidance"></p>
+            </div>
+            <button class="primary-button" type="button" data-go="input">
+              아이디어 4축 분석으로 이동 <span aria-hidden="true">→</span>
+            </button>
+          </section>
         </section>
 
         <section class="view workspace-view" id="inputView" data-view="input">
@@ -140,11 +223,11 @@
           <div class="example-section">
             <h2>예시로 시작하기</h2>
             <div class="example-list">
-              <button type="button" data-category="화장품" data-example="감귤 껍질로 피부에 좋은 항산화 화장품을 만들고 싶어요.">
+              <button type="button" data-category="화장품" data-example="감귤 껍질로 피부에 좋은 항산화 화장품을 만들고싶어요">
                 감귤 껍질 항산화 화장품
               </button>
-              <button type="button" data-category="펫푸드/펫케어" data-example="제주 해조류를 활용한 강아지 영양제를 개발하고 싶어요.">
-                제주 해조류 강아지 영양제
+              <button type="button" data-category="기능성 식품/음료" data-example="제주 해조류들을 활용한 천연 색소 기능성 스낵을 만들고싶어요">
+                제주 해조류 천연 색소 기능성 스낵
               </button>
               <button type="button" data-category="기능성 식품/음료" data-example="풋귤을 활용한 항산화 기능성 음료를 만들고 싶습니다.">
                 풋귤 항산화 기능성 음료
@@ -156,9 +239,9 @@
         <section class="view workspace-view" id="ideasView" data-view="ideas">
           <div class="page-heading">
             <button class="back-button" type="button" data-go="home">← 처음으로</button>
-            <p class="eyebrow">IDEA LIBRARY</p>
-            <h1>제주 바이오 자원에서 아이디어를 골라보세요.</h1>
-            <p>추천 아이디어는 사전 정의된 표준 키워드를 사용해 같은 분석 로직으로 연결됩니다.</p>
+            <p class="eyebrow">RAW MATERIAL LIBRARY</p>
+            <h1>제주 바이오 추천 원료를 골라보세요.</h1>
+            <p>그린·해양·레드·화이트 바이오 원료를 먼저 살펴보고, 원료별 활용도와 블루오션 제품 후보를 확인할 수 있습니다.</p>
           </div>
 
           <div class="idea-toolbar">
@@ -169,7 +252,7 @@
               <button data-filter="Red Bio" type="button">Red</button>
               <button data-filter="White Bio" type="button">White</button>
             </div>
-            <span id="ideaCount">12개 아이디어</span>
+            <span id="ideaCount">추천 원료</span>
           </div>
           <div class="idea-grid" id="ideaGrid"></div>
         </section>
@@ -178,204 +261,292 @@
           <div class="result-header">
             <div>
               <button class="back-button" type="button" data-go="input">← 새 분석</button>
-              <p class="eyebrow">ANALYSIS REPORT</p>
+              <p class="eyebrow">COMMERCIAL READINESS INTELLIGENCE</p>
               <h1 id="resultTitle">분석 결과</h1>
               <p id="resultTimestamp"></p>
             </div>
             <div class="result-actions">
-              <button class="secondary-button" id="shareButton" type="button">결과 복사</button>
+              <button class="secondary-button" id="shareButton" type="button">리포트 복사</button>
               <button class="primary-button" id="printButton" type="button">PDF 저장/인쇄</button>
             </div>
           </div>
 
-          <div class="subject-strip classification-strip">
-            <div>
-              <span>원료</span>
-              <strong id="resultIngredient">-</strong>
+          <section class="executive-dashboard">
+            <div class="dashboard-heading">
+              <div>
+                <p class="eyebrow">EXECUTIVE DASHBOARD</p>
+                <h2>사업화 준비도 핵심 지표</h2>
+              </div>
+              <span id="evidenceStatusDashboard" class="cache-notice">근거 확인 중</span>
             </div>
-            <div>
-              <span>원료 카테고리</span>
-              <strong id="resultIngredientCategory">-</strong>
+
+            <div class="dashboard-row dashboard-row-primary">
+              <article class="dashboard-panel input-decomposition">
+                <span class="panel-kicker">INPUT DECOMPOSITION</span>
+                <blockquote id="dashboardOriginal">입력 문장</blockquote>
+                <div class="decomposition-flow">
+                  <div><span>원료</span><strong id="dashboardIngredient">-</strong></div>
+                  <i>+</i>
+                  <div><span>핵심 기능</span><strong id="dashboardFunctions">-</strong></div>
+                  <i>+</i>
+                  <div><span>제품군</span><strong id="dashboardCategory">-</strong></div>
+                </div>
+              </article>
+
+              <article class="dashboard-panel readiness-panel">
+                <div class="readiness-score">
+                  <span>R&amp;D Readiness Score</span>
+                  <strong id="totalScore">0</strong><small>/100</small>
+                </div>
+                <div class="readiness-meta">
+                  <div><span>진단 등급</span><strong id="dashboardGrade">-</strong></div>
+                  <div><span>사업화 포지션</span><strong id="dashboardPosition">-</strong></div>
+                  <div><span>우선 검토 제품군</span><strong id="dashboardRecommendedCategory">-</strong></div>
+                  <div><span>바이오 분야</span><strong id="dashboardBioType">-</strong></div>
+                </div>
+                <p id="decisionLabel">분석 중</p>
+                <button class="algorithm-button" id="algorithmButton" type="button">알고리즘 보기</button>
+              </article>
             </div>
-            <div>
-              <span>바이오 분야</span>
-              <strong id="resultBioType">-</strong>
+
+            <div class="dashboard-conclusion-grid" id="dashboardConclusionGrid"></div>
+
+            <div class="dashboard-row dashboard-row-secondary">
+              <article class="dashboard-panel axis-overview">
+                <div class="panel-title">
+                  <span class="panel-kicker">4-AXIS DIAGNOSTICS</span>
+                  <strong>핵심 진단 결과</strong>
+                </div>
+                <div class="score-grid" id="scoreGrid"></div>
+              </article>
+
+              <article class="dashboard-panel market-position-panel">
+                <div class="panel-title">
+                  <span class="panel-kicker">MARKET POSITION</span>
+                  <strong>시장 진입성 × 특허 경쟁 강도</strong>
+                </div>
+                <div class="market-position-map">
+                  <div class="position-zone position-zone-caution">준레드오션</div>
+                  <div class="position-zone position-zone-crowded">레드오션</div>
+                  <div class="position-zone position-zone-research">장기 R&amp;D형</div>
+                  <div class="position-zone position-zone-opportunity">블루오션 후보 · 준블루오션</div>
+                  <span class="position-axis-y">특허 경쟁 강도 ↑</span>
+                  <span class="position-axis-x">시장 진입 용이성 →</span>
+                  <i id="dashboardPositionPoint"><b>현재 아이템</b></i>
+                </div>
+                <div class="position-metrics">
+                  <span>시장 진입성 <strong id="marketEntryEase">0</strong></span>
+                  <span>특허 경쟁 강도 <strong id="patentCompetition">0</strong></span>
+                  <b id="dashboardPositionLabel">-</b>
+                </div>
+                <p id="dashboardPositionInsight">-</p>
+              </article>
             </div>
-            <div>
-              <span>제품군</span>
-              <strong id="resultCategories">-</strong>
+
+            <div class="dashboard-row dashboard-row-tertiary">
+              <article class="dashboard-panel differentiation-panel">
+                <div class="panel-title">
+                  <span class="panel-kicker">DIFFERENTIATION SIGNALS</span>
+                  <strong>차별성 요약</strong>
+                </div>
+                <div class="differentiation-summary" id="differentiationSummary"></div>
+              </article>
+
+              <article class="dashboard-panel trend-panel">
+                <div class="tool-heading">
+                  <div>
+                    <span>최근 5년 특허 출원 추이</span>
+                    <strong id="patentTrendSignal">분석 중</strong>
+                  </div>
+                  <span class="cache-notice">특허 트렌드 시뮬레이션</span>
+                </div>
+                <div class="patent-chart" id="patentChart"></div>
+                <p id="patentTrendAction">최근 출원 흐름을 분석하고 있습니다.</p>
+              </article>
+
+              <article class="dashboard-panel brand-axis-panel">
+                <div class="panel-title">
+                  <span class="panel-kicker">BRAND POSITIONING</span>
+                  <strong>브랜드 포지셔닝</strong>
+                </div>
+                <div class="brand-positioning-meta"><span>AI 예측</span><b>시연 데이터 기반 분석</b></div>
+                <div class="brand-positioning-map" id="brandPositioningMap"></div>
+                <p class="brand-positioning-insight" id="brandPositioningInsight">현재 아이템의 차별 위치를 분석하고 있습니다.</p>
+              </article>
             </div>
-            <div>
-              <span>세부 제품 형태</span>
-              <strong id="resultProductForm">-</strong>
-            </div>
-            <div>
-              <span>주요 기능 후보</span>
-              <strong id="resultFunctions">-</strong>
-            </div>
+          </section>
+
+          <div class="report-divider">
+            <span>DETAILED EVIDENCE REPORT</span>
+            <strong>상세 분석 리포트</strong>
           </div>
 
-          <section class="classification-assessment">
-            <article class="fit-panel">
-              <span>논리적 적합성</span>
-              <div><strong id="logicalFitLabel">-</strong><b id="logicalFitScore">0</b></div>
-              <p id="logicalFitReason">-</p>
-            </article>
-            <article>
-              <span>감점 사유</span>
-              <ul id="deductionList"></ul>
-            </article>
-            <article>
-              <span>추가 검증</span>
-              <strong id="validationRequired">-</strong>
-              <ul id="validationList"></ul>
-            </article>
-            <article>
-              <span>개선 추천 아이디어</span>
-              <ul id="recommendationList"></ul>
-            </article>
-          </section>
-
-          <section class="score-section">
-            <div class="total-score">
-              <span>종합점수</span>
-              <strong id="totalScore">0</strong>
-              <small>/ 100</small>
-              <p id="decisionLabel">분석 중</p>
+          <section class="report-block report-section" id="reportOverview">
+            <div class="report-section-heading"><b>Ⅰ</b><div><span>ITEM OVERVIEW</span><h2>아이템 분석 개요</h2></div></div>
+            <section class="enterprise-context" id="enterpriseContext" hidden>
+              <div><span>라이트 기업진단</span><strong id="enterpriseStage">-</strong></div>
+              <p id="enterpriseSummary">-</p><p id="enterpriseGuidance">-</p>
+            </section>
+            <div class="subject-strip classification-strip">
+              <div><span>원료</span><strong id="resultIngredient">-</strong></div>
+              <div><span>원료 카테고리</span><strong id="resultIngredientCategory">-</strong></div>
+              <div><span>바이오 분야</span><strong id="resultBioType">-</strong></div>
+              <div><span>제품군</span><strong id="resultCategories">-</strong></div>
+              <div><span>세부 제품 형태</span><strong id="resultProductForm">-</strong></div>
+              <div><span>주요 기능 후보</span><strong id="resultFunctions">-</strong></div>
             </div>
-            <div class="score-grid" id="scoreGrid"></div>
+            <section class="classification-assessment">
+              <article class="fit-panel"><span>논리적 적합성</span><div><strong id="logicalFitLabel">-</strong><b id="logicalFitScore">0</b></div><p id="logicalFitReason">-</p></article>
+              <article><span>보완 필요 감점</span><ul id="deductionList"></ul></article>
+              <article><span>보완 항목</span><strong id="validationRequired">-</strong><ul id="validationList"></ul></article>
+              <article><span>추천 진입 전략</span><ul id="recommendationList"></ul></article>
+            </section>
+            <div class="overview-business-strip">
+              <div><span>입력 문장</span><strong id="overviewOriginal">-</strong></div>
+              <div><span>사업화 포지션</span><strong id="overviewBusinessPosition">-</strong></div>
+              <div><span>추천 진입 전략</span><strong id="overviewEntryStrategy">-</strong></div>
+            </div>
           </section>
 
-          <section class="report-block positioning-section">
-            <div class="section-title">
-              <div>
-                <p class="eyebrow">MARKET POSITIONING</p>
-                <h2>블루오션·레드오션 포지셔닝</h2>
+          <section class="report-block report-section">
+            <div class="report-section-heading"><b>Ⅱ</b><div><span>4-AXIS EVIDENCE</span><h2>4축 진단 상세</h2></div></div>
+            <div class="axis-detail-list" id="axisDetailList"></div>
+            <div class="evidence-summary-block" id="evidenceSummary">
+              <div class="evidence-summary-heading">
+                <div><span>활용 근거 요약</span><strong>아이템별 근거 수</strong></div>
+                <b id="evidenceStatus">근거 확인 중</b>
               </div>
-              <span class="diagnosis-badge" id="positioningDiagnosis">판정 중</span>
+              <div class="evidence-summary-grid" id="evidenceSummaryGrid"></div>
+            </div>
+          </section>
+
+          <section class="report-block report-section positioning-section">
+            <div class="section-title">
+              <div class="report-section-heading"><b>Ⅲ</b><div><span>MARKET POSITIONING</span><h2>블루오션·레드오션 포지셔닝 설명</h2></div></div>
+              <span class="diagnosis-badge" id="positioningDiagnosis">분석 중</span>
             </div>
             <div class="positioning-layout">
               <div class="matrix-shell">
-                <span class="axis-label axis-y-top">시장 성장성 높음 ↑</span>
+                <span class="axis-label axis-y-top">특허 경쟁 강도 높음 ↑</span>
                 <div class="positioning-matrix" id="positioningMatrix">
-                  <div class="matrix-zone zone-crowded"><strong>성장하지만 혼잡</strong></div>
-                  <div class="matrix-zone zone-blue"><strong>블루오션</strong></div>
+                  <div class="matrix-zone zone-crowded"><strong>준레드오션</strong></div>
                   <div class="matrix-zone zone-red"><strong>레드오션</strong></div>
-                  <div class="matrix-zone zone-niche"><strong>저성장 니치</strong></div>
+                  <div class="matrix-zone zone-niche"><strong>장기 R&amp;D형</strong></div>
+                  <div class="matrix-zone zone-blue"><strong>블루오션 후보 · 준블루오션</strong></div>
                   <div class="matrix-points" id="matrixPoints"></div>
                 </div>
-                <div class="axis-label axis-x">
-                  <span>← 경쟁밀도 높음</span>
-                  <span>경쟁밀도 낮음 →</span>
-                </div>
+                <div class="axis-label axis-x"><span>← 시장 진입 용이성 낮음</span><span>시장 진입 용이성 높음 →</span></div>
               </div>
               <aside class="pivot-panel">
-                <span class="panel-label">판정</span>
-                <h3 id="pivotDiagnosis">-</h3>
-                <p id="pivotRationale">-</p>
+                <span class="panel-label">포지션 진단</span><h3 id="pivotDiagnosis">-</h3><p id="pivotRationale">-</p>
                 <div class="scenario-buttons" id="scenarioButtons"></div>
-                <div class="projection-box">
-                  <span>선택 시나리오 예상점수</span>
-                  <strong id="projectedScore">0.0</strong>
-                  <small id="projectionDelta">현재 대비 0.0</small>
-                </div>
-                <p class="action-line"><strong>권장 방향</strong><span id="pivotAction">-</span></p>
+                <div class="projection-box"><span>선택 시나리오 예상점수</span><strong id="projectedScore">0.0</strong><small id="projectionDelta">현재 대비 0.0</small></div>
+                <p class="action-line"><strong>전략적 시사점</strong><span id="pivotAction">-</span></p>
               </aside>
             </div>
           </section>
 
-          <section class="report-block decision-tools">
-            <div class="section-title">
-              <div>
-                <p class="eyebrow">FORECAST &amp; WHAT-IF</p>
-                <h2>추이와 가중치 시뮬레이션</h2>
+          <section class="report-block report-section">
+            <div class="report-section-heading"><b>Ⅳ</b><div><span>BRAND ARCHETYPE BENCHMARK</span><h2>브랜드 포지셔닝 상세</h2></div></div>
+            <div class="brand-positioning-detail">
+              <div class="brand-positioning-detail-head">
+                <strong>브랜드 포지셔닝</strong>
+                <span id="brandPositioningAxisSummary">X/Y축 기준을 분석하고 있습니다.</span>
               </div>
+              <div class="brand-positioning-map brand-positioning-map-large" id="brandPositioningDetailMap"></div>
             </div>
-            <div class="tool-grid">
-              <article class="trend-panel">
-                <div class="tool-heading">
-                  <div>
-                    <span>최근 5년 유사 특허 출원</span>
-                    <strong id="patentTrendSignal">증가 추이</strong>
-                  </div>
-                  <span class="cache-notice">캐시 기준</span>
-                </div>
-                <div class="patent-chart" id="patentChart"></div>
-                <p id="patentTrendAction">최근 출원 증가율을 반영해 선행기술 조사를 앞당기세요.</p>
-              </article>
-
-              <article class="weight-panel">
-                <div class="tool-heading">
-                  <div>
-                    <span>의사결정 가중치</span>
-                    <strong>What-if 계산</strong>
-                  </div>
-                  <button id="resetWeights" type="button">초기화</button>
-                </div>
-                <div class="weight-presets" id="weightPresets">
-                  <button type="button" data-weight-preset="default">기본</button>
-                  <button type="button" data-weight-preset="cosmetic">화장품</button>
-                  <button type="button" data-weight-preset="health">건기식</button>
-                  <button type="button" data-weight-preset="pet">펫케어</button>
-                </div>
-                <div class="weight-sliders" id="weightSliders"></div>
-                <div class="weight-result">
-                  <span>시뮬레이션 종합점수</span>
-                  <strong id="simulatedScore">0.0</strong>
-                  <small id="weightTotal">가중치 합계 100%</small>
-                </div>
-              </article>
-            </div>
+            <p class="brand-detail-insight" id="brandDetailInsight">현재 아이템의 차별 위치를 분석하고 있습니다.</p>
+            <div class="report-table brand-comparison-table" id="brandComparisonTable"></div>
           </section>
 
-          <section class="report-block ai-report">
-            <div class="section-title">
-              <div>
-                <p class="eyebrow">AI INTERPRETATION</p>
-                <h2>분석 결과 설명</h2>
+          <section class="report-block report-section">
+            <div class="report-section-heading"><b>Ⅴ</b><div><span>DIFFERENTIATION AUDIT</span><h2>차별성 상세</h2></div></div>
+            <div class="differentiation-detail-list" id="differentiationDetailList"></div>
+          </section>
+
+          <section class="report-block report-section decision-tools">
+            <div class="report-section-heading"><b>Ⅵ</b><div><span>PATENT SIGNAL &amp; WEIGHT SENSITIVITY</span><h2>특허 출원 추이 및 가중치 시뮬레이션</h2></div></div>
+            <div class="patent-interpretation">
+              <span class="simulation-label">시연 데이터 기반 출원 추이</span>
+              <strong id="patentDetailHeadline">특허 흐름 분석</strong>
+              <p id="patentDetailText">최근 5년 출원 비율과 증가율을 확인하고 있습니다.</p>
+              <small>실서비스에서는 KIPRIS Plus 특허·실용신안 공보의 출원일자, 출원번호, IPC, 초록, 출원인 정보를 사용하며, 현재 시연에서는 키워드 기반 demoPatentTrend를 사용합니다.</small>
+            </div>
+            <article class="weight-panel">
+              <div class="tool-heading"><div><span>의사결정 가중치</span><strong>What-if 계산</strong></div><button id="resetWeights" type="button">초기화</button></div>
+              <div class="weight-presets" id="weightPresets">
+                <button type="button" data-weight-preset="default">기본</button>
+                <button type="button" data-weight-preset="cosmetic">화장품</button>
+                <button type="button" data-weight-preset="health">건기식</button>
+                <button type="button" data-weight-preset="pet">펫케어</button>
               </div>
+              <div class="weight-sliders" id="weightSliders"></div>
+              <div class="weight-result"><span>가중치 민감도 원점수</span><strong id="simulatedScore">0.0</strong><small id="weightTotal">가중치 95% + 적합성 5%</small></div>
+            </article>
+          </section>
+
+          <section class="report-block report-section">
+            <div class="report-section-heading"><b>Ⅶ</b><div><span>SCORE-UP SCENARIO</span><h2>What-if 제품화 전략</h2></div></div>
+            <div class="report-table whatif-table" id="whatIfTable"></div>
+            <p class="whatif-summary" id="whatIfSummary">제품군을 구체화했을 때의 점수 향상 시나리오를 분석하고 있습니다.</p>
+          </section>
+
+          <section class="report-block report-section ai-report">
+            <div class="section-title">
+              <div class="report-section-heading"><b>Ⅷ</b><div><span>COMMERCIALIZATION COMMENTARY</span><h2>분석 결과 설명</h2></div></div>
               <span class="provider-badge" id="explanationProvider">근거 기반 폴백</span>
             </div>
             <p class="ai-summary" id="aiSummary"></p>
-            <div class="explanation-grid" id="explanationGrid"></div>
-          </section>
-
-          <section class="report-block">
-            <div class="section-title">
-              <div>
-                <p class="eyebrow">PUBLIC DATA EVIDENCE</p>
-                <h2>점수 산출 근거</h2>
-              </div>
-              <span class="cache-notice">MVP 데모 캐시</span>
+            <div class="founder-decision-grid">
+              <article><span>추천 진입 제품군</span><strong id="founderRecommendedCategory">-</strong></article>
+              <article><span>가장 강한 차별성</span><strong id="founderStrongestDifferentiator">-</strong></article>
+              <article><span>가장 먼저 해야 할 액션</span><strong id="founderFirstAction">-</strong></article>
             </div>
-            <div class="evidence-table" id="evidenceTable"></div>
+            <div class="explanation-grid" id="explanationGrid"></div>
+            <div class="copilot-layout">
+              <div class="bottleneck-panel"><span>핵심 병목</span><strong id="copilotBottleneck">-</strong><b id="copilotScore">0점</b><p id="copilotCause">-</p></div>
+              <div class="next-action-panel"><span>우선 실행과제</span><ol id="copilotActions"></ol><p><strong>예상 소요기간</strong><span id="copilotDuration">-</span></p></div>
+            </div>
+            <p class="copilot-notice" id="copilotNotice"></p>
+            <div class="startup-path"><h3>Venture Launch Path</h3><div id="startupPath"></div></div>
           </section>
 
-          <section class="report-block regulation-section">
+          <section class="report-block report-section regulation-section">
             <div class="section-title">
-              <div>
-                <p class="eyebrow">REGULATORY CHECK</p>
-                <h2>규제·인허가 사전 체크</h2>
-              </div>
+              <div class="report-section-heading"><b>Ⅸ</b><div><span>REGULATORY &amp; PRODUCTIZATION</span><h2>인허가·제품화 판단</h2></div></div>
               <div class="freshness-badges" id="freshnessBadges"></div>
             </div>
+            <p class="regulation-judgement" id="regulationJudgement">제품군 기준으로 인허가와 제품화 경로를 판단하고 있습니다.</p>
             <div class="regulation-list" id="regulationList"></div>
           </section>
 
-          <section class="report-block formula-section">
-            <div class="section-title">
+          <p class="legal-notice">본 리포트는 사업화 가능성을 단정하는 평가서가 아니라, 공공데이터와 근거 요약을 구조화한 초기 의사결정 자료입니다. 특허·규제·효능·원료 규격은 분야별 정밀 판단을 권장합니다.</p>
+
+          <section class="report-block report-section ai-coach-section" id="aiCoachSection">
+            <div class="report-section-heading">
+              <b>AI</b>
               <div>
-                <p class="eyebrow">SCORING LOGIC</p>
-                <h2>계산식</h2>
+                <span>COMMERCIALIZATION COACH</span>
+                <h2>AI 사업화 코치에게 질문하기</h2>
               </div>
             </div>
-            <div class="formula-list" id="formulaList"></div>
+            <p class="ai-coach-description">
+              현재 분석 결과를 바탕으로 사업화 방향, 포지셔닝, R&amp;D 보완 전략을 질문할 수 있습니다.
+            </p>
+            <div class="ai-coach-card">
+              <div class="ai-coach-quick" id="aiCoachQuickQuestions">
+                <button type="button" data-ai-coach-question="이 아이템의 가장 큰 강점은?">이 아이템의 가장 큰 강점은?</button>
+                <button type="button" data-ai-coach-question="가장 먼저 보완할 부분은?">가장 먼저 보완할 부분은?</button>
+                <button type="button" data-ai-coach-question="브랜드 포지셔닝을 한 줄로 정리해줘">브랜드 포지셔닝을 한 줄로 정리해줘</button>
+                <button type="button" data-ai-coach-question="R&amp;D 지원사업에 넣으려면 무엇을 강조해야 해?">R&amp;D 지원사업에 넣으려면 무엇을 강조해야 해?</button>
+              </div>
+              <div class="ai-coach-messages" id="aiCoachMessages" aria-live="polite"></div>
+              <form class="ai-coach-form" id="aiCoachForm">
+                <textarea id="aiCoachInput" maxlength="300" rows="2" placeholder="현재 분석 결과에 대해 궁금한 점을 입력하세요."></textarea>
+                <button id="aiCoachSendButton" type="submit">보내기</button>
+              </form>
+            </div>
           </section>
-
-          <p class="legal-notice">
-            본 분석은 초기 의사결정을 위한 보조 자료입니다. 특허, 규제, 효능 및 최종 개발 가능성은 기업과 분야별 전문가의
-            추가 검토가 필요합니다.
-          </p>
         </section>
       </main>
 
@@ -391,9 +562,9 @@
       <h2>공공데이터 근거를 연결하고 있습니다.</h2>
       <ol id="analysisSteps">
         <li class="active"><span>1</span> 표준 키워드 구조화</li>
-        <li><span>2</span> 논문·특허·생산 데이터 조회</li>
+        <li><span>2</span> 논문·특허·제주 공공데이터 조회</li>
         <li><span>3</span> 4축 점수 계산</li>
-        <li><span>4</span> 결과 설명 생성</li>
+        <li><span>4</span> 병목과 다음 행동 정리</li>
       </ol>
     </dialog>
 
@@ -407,11 +578,102 @@
       </div>
       <div class="connection-list">
         <div><span class="status-dot optional"></span><strong>Gemini</strong><p>키가 있으면 자연어 표준화, 없으면 규칙 기반 폴백</p></div>
-        <div><span class="status-dot optional"></span><strong>Claude</strong><p>키가 있으면 결과 설명, 없으면 근거 기반 폴백</p></div>
-        <div><span class="status-dot demo"></span><strong>ScienceON / KIPRIS</strong><p>현재 시연용 캐시 데이터</p></div>
-        <div><span class="status-dot demo"></span><strong>식약처 / 제주데이터허브</strong><p>현재 시연용 캐시 데이터</p></div>
+        <div><span class="status-dot optional"></span><strong>논문 근거</strong><p>논문 검색 결과와 최근 연구 흐름을 반영</p></div>
+        <div><span class="status-dot optional"></span><strong>식약처 원료 DB</strong><p>화장품 원료성분정보를 서버에서만 조회</p></div>
+        <div><span class="status-dot connected"></span><strong>제주 공공데이터</strong><p>감귤·축산·판매 채널 통계 연결</p></div>
+        <div><span class="status-dot demo"></span><strong>특허 트렌드</strong><p>현재 특허 축은 시연 데이터 기반 분석</p></div>
       </div>
       <p class="dialog-note">API 키는 브라우저가 아니라 Vercel 서버 환경변수에만 저장합니다.</p>
+    </dialog>
+
+    <dialog class="algorithm-dialog" id="algorithmDialog">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">SCORING METHODOLOGY</p><h2>점수 산정 알고리즘</h2></div>
+        <button id="closeAlgorithmButton" type="button" aria-label="닫기">×</button>
+      </div>
+      <p class="algorithm-lead">
+        본 점수는 AI가 임의로 생성한 값이 아니라, 사용자 입력을 원료·기능·제품군·바이오 분야로 분해한 뒤
+        공공데이터, 논문 근거, 식약처 원료 DB, 특허 트렌드, 내부 룰 기반 적합성 검사를 반영해 산출됩니다.
+        AI는 계산된 근거를 바탕으로 설명문과 사업화 전략을 생성합니다.
+      </p>
+      <div class="algorithm-formula">
+        <strong>계산식</strong>
+        <span>
+          최종 점수 =<br>
+          기술성 30%<br>
+          + 시장성 25%<br>
+          + 특허안전성 20%<br>
+          + 공급안정성 20%<br>
+          + 논리적 적합성 5%<br>
+          - 보완 필요 감점
+        </span>
+      </div>
+      <div class="algorithm-grid">
+        <section>
+          <h3>기술성</h3>
+          <ul>
+            <li>논문 근거 수</li>
+            <li>최근 연구 비율</li>
+            <li>기능 키워드 일치도</li>
+            <li>원료와 기능의 연결성</li>
+          </ul>
+        </section>
+        <section>
+          <h3>시장성</h3>
+          <ul>
+            <li>제품군 적합성</li>
+            <li>초기 시장 진입 난이도</li>
+            <li>트렌드 키워드</li>
+            <li>유사 제품군의 시장 확장성</li>
+          </ul>
+        </section>
+        <section>
+          <h3>특허안전성</h3>
+          <ul>
+            <li>관련 특허 수</li>
+            <li>최근 5년 출원 비율</li>
+            <li>출원 증가율</li>
+            <li>키워드 유사도</li>
+            <li>경쟁 강도</li>
+          </ul>
+        </section>
+        <section>
+          <h3>공급안정성</h3>
+          <ul>
+            <li>제주 원료 공공데이터 존재 여부</li>
+            <li>생산량/처리량 근거</li>
+            <li>부산물 활용 가능성</li>
+            <li>지역 원료 지속성</li>
+          </ul>
+        </section>
+        <section>
+          <h3>논리적 적합성</h3>
+          <ul>
+            <li>원료와 제품군의 연결성</li>
+            <li>기능 키워드와 제품군의 일치도</li>
+            <li>바이오 분야 적합성</li>
+            <li>사업화 방향의 자연스러움</li>
+          </ul>
+        </section>
+        <section>
+          <h3>상한 규칙</h3>
+          <ul>
+            <li>원료 기능 미지정: 최대 60점</li>
+            <li>제품군 미지정: 최대 65점</li>
+            <li>원료와 제품군 모두 낮은 신뢰도: 최대 50점</li>
+            <li>논리적으로 부적합한 조합: 최대 55점</li>
+            <li>공공데이터/논문/특허 근거가 모두 부족하면 최대 60점</li>
+            <li>80점 이상은 최소 2개 이상의 실제 근거 또는 시연 근거가 있어야 함</li>
+          </ul>
+        </section>
+      </div>
+      <section class="algorithm-result-reason">
+        <div><span>현재 결과에 대한 산출 해석</span><strong>왜 이 점수가 나왔는지</strong></div>
+        <div class="algorithm-evidence-summary" id="algorithmEvidenceSummary"></div>
+        <ul id="algorithmWhyList"></ul>
+      </section>
+      <div class="formula-list algorithm-formula-list" id="algorithmFormulaList"></div>
+      <p class="algorithm-note">실시간 연동이 없는 항목은 “시연 데이터 기반 분석”으로 구분해 표시합니다.</p>
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
