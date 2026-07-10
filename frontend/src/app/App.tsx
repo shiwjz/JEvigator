@@ -7,6 +7,7 @@ import { SeamlessVideoBackground } from "./components/SeamlessVideoBackground";
 import grassImage from "../imports/visnu-deva-WZBSRWPKBDw-unsplash.jpg";
 import bgImage from "../imports/Gemini_Generated_Image_88su2388su2388su.png";
 import bgImageDark from "../imports/Gemini_Generated_Image_moeip2moeip2moei.png";
+import jevigatorLogo from "../imports/jevigator-logo.svg";
 import greenBioImage from "../imports/jggrz-harvest-4387965_1920.jpg";
 import marineBioImage from "../imports/_____________________________________________________________.jpeg";
 import whiteBioImage from "../imports/research-worker-laboratory-breeding-new-kinds-vegetation_273609-13437.jpg";
@@ -1485,35 +1486,45 @@ function CustomIdeaResult({
     return Math.round(values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1));
   });
 
-  const RadarMini = ({ datasets, size = 160 }: { datasets: Array<{ label: string; values: number[]; color: string; filled?: boolean }>; size?: number }) => {
-    const cx = size / 2, cy = size / 2, r = size * 0.36;
-    const n = 4;
-    const step = (2 * Math.PI) / n;
-    const start = -Math.PI / 2;
-    const pt = (i: number, pct: number) => ({
-      x: cx + r * pct * Math.cos(start + i * step),
-      y: cy + r * pct * Math.sin(start + i * step),
+	  const RadarMini = ({ datasets, size = 160 }: { datasets: Array<{ label: string; values: number[]; color: string; filled?: boolean }>; size?: number }) => {
+	    const cx = size / 2, cy = size / 2, r = size * 0.36;
+	    const n = 4;
+	    const step = (2 * Math.PI) / n;
+	    const start = -Math.PI / 2;
+	    const gridStroke = darkMode ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.08)";
+	    const spokeStroke = darkMode ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.07)";
+	    const labelFill = darkMode ? "#dbeafe" : "#6b7280";
+	    const pt = (i: number, pct: number) => ({
+	      x: cx + r * pct * Math.cos(start + i * step),
+	      y: cy + r * pct * Math.sin(start + i * step),
     });
     const labels = ["혁신성", "접근성", "프리미엄", "친환경"];
-    return (
-      <svg viewBox={`0 0 ${size} ${size}`} width="100%" height={size}>
-        {[0.25, 0.5, 0.75, 1].map(l => (
-          <polygon key={l} points={Array.from({ length: n }, (_, i) => { const p = pt(i, l); return `${p.x},${p.y}`; }).join(" ")} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" />
-        ))}
-        {Array.from({ length: n }, (_, i) => { const p = pt(i, 1); return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="rgba(0,0,0,0.07)" strokeWidth="1" />; })}
+	    return (
+	      <svg viewBox={`0 0 ${size} ${size}`} width="100%" height={size}>
+	        {[0.25, 0.5, 0.75, 1].map(l => (
+	          <polygon key={l} points={Array.from({ length: n }, (_, i) => { const p = pt(i, l); return `${p.x},${p.y}`; }).join(" ")} fill="none" stroke={gridStroke} strokeWidth="1" />
+	        ))}
+	        {Array.from({ length: n }, (_, i) => { const p = pt(i, 1); return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke={spokeStroke} strokeWidth="1" />; })}
         {datasets.map((ds) => (
           <polygon key={ds.label}
             points={ds.values.map((v, i) => { const p = pt(i, v / 100); return `${p.x},${p.y}`; }).join(" ")}
             fill={ds.filled ? ds.color : "none"} fillOpacity={ds.filled ? 0.2 : 0}
             stroke={ds.color} strokeWidth={ds.filled ? 2 : 1.5} strokeDasharray={ds.filled ? undefined : "3,2"} />
         ))}
-        {labels.map((lbl, i) => { const p = pt(i, 1.3); return <text key={lbl} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fill="#6b7280">{lbl}</text>; })}
-      </svg>
-    );
-  };
+	        {labels.map((lbl, i) => { const p = pt(i, 1.3); return <text key={lbl} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fontSize="7.5" fill={labelFill}>{lbl}</text>; })}
+	      </svg>
+	    );
+	  };
 
-  const statusColor = (s: string) => s === "통과" ? "#22c55e" : s === "주의" ? "#f59e0b" : "#94a3b8";
-  const statusBg = (s: string) => s === "통과" ? "#f0fdf4" : s === "주의" ? "#fffbeb" : "#f8fafc";
+	  const statusColor = (s: string) => s === "통과" ? "#22c55e" : s === "주의" ? "#f59e0b" : "#94a3b8";
+	  const statusBg = (s: string) => {
+	    if (!darkMode) return s === "통과" ? "#f0fdf4" : s === "주의" ? "#fffbeb" : "#f8fafc";
+	    return s === "통과"
+	      ? "rgba(34,197,94,0.14)"
+	      : s === "주의"
+	        ? "rgba(245,158,11,0.14)"
+	        : "rgba(148,163,184,0.14)";
+	  };
 
   const CARD = `rounded-2xl shadow-sm ${darkMode ? "bg-slate-950/72 text-white" : "bg-white"}`;
   const CARD_STYLE = {
@@ -2535,17 +2546,20 @@ export default function App() {
 	        }}
 	      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <button
-            onClick={() => setActiveSection("home")}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ backgroundColor: "#b86f2a" }}>
-              <Leaf className="w-4 h-4" style={{ color: "#ffffff" }} />
-            </div>
-	            <span className="font-semibold text-sm tracking-tight" style={{ color: darkMode ? "#c8d0ff" : "#111827" }}>
-	              Jeju Bio <span style={{ color: darkMode ? "#7b8fff" : "#b86f2a" }}>R&D Navigator</span>
-            </span>
-          </button>
+	          <button
+	            onClick={() => setActiveSection("home")}
+	            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+	          >
+	            <img
+	              src={jevigatorLogo}
+	              alt="Jeju Bio R&D Navigating 로고"
+	              className="w-8 h-8 rounded-lg object-cover shadow-sm"
+	              style={{ aspectRatio: "1 / 1" }}
+	            />
+		            <span className="font-semibold text-sm tracking-tight" style={{ color: darkMode ? "#c8d0ff" : "#111827" }}>
+		              Jeju Bio <span style={{ color: darkMode ? "#7b8fff" : "#b86f2a" }}>R&D Navigating</span>
+	            </span>
+	          </button>
           <div className="flex items-center gap-1">
             {([
               { id: "home", label: "홈" },
@@ -2673,7 +2687,7 @@ export default function App() {
                         아이디어가 이미 있으신가요?
                       </p>
                       <p className={`text-[11px] leading-relaxed mb-3 ${darkMode ? "text-white/60" : "text-foreground/45"}`}>
-                        아이디어를 알려주는 문장을 바탕으로 표준 원료·기능·제품군으로 구조화합니다.
+	                        아이디어 문장을 원료 · 기능 · 제품군으로 구조화합니다.
                       </p>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
                         사용자 지정 AI 분석 <ArrowRight className="w-3 h-3" />
@@ -2980,27 +2994,28 @@ export default function App() {
             )}
 
             {/* Material selection + analysis */}
-            {toolStep === "select" && (
-              <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 space-y-8">
-                {/* Context hint based on answers */}
-                <div key={`header-${activeCategory}-${selectionStep}`} className="space-y-1 text-center">
-                  <motion.h1
-                    className="text-2xl font-bold"
-                    initial={{ opacity: 0, x: -40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4, duration: 0.55, ease: "easeOut" }}
-                  >
-                    현재 가장 추천되는 트렌드 소재를 보세요
-                  </motion.h1>
-                  <motion.p
-                    className="text-foreground/40 text-sm"
-                    initial={{ opacity: 0, x: -40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1, duration: 0.55, ease: "easeOut" }}
-                  >
-                    해당 소재를 선택하면 분석 결과를 확인할 수 있습니다.
-                  </motion.p>
-                </div>
+	            {toolStep === "select" && (
+	              <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 space-y-8">
+	                {analysisState === "result" && (
+	                  <div key={`report-header-${activeCategory}-${selectedMaterial ?? customInput}`} className="space-y-1 text-center">
+	                    <motion.h1
+	                      className="text-2xl font-bold"
+	                      initial={{ opacity: 0, y: 10 }}
+	                      animate={{ opacity: 1, y: 0 }}
+	                      transition={{ duration: 0.35, ease: "easeOut" }}
+	                    >
+	                      다음 소재에 대해 AI의 분석 보고서입니다.
+	                    </motion.h1>
+	                    <motion.p
+	                      className="text-foreground/50 text-sm"
+	                      initial={{ opacity: 0, y: 8 }}
+	                      animate={{ opacity: 1, y: 0 }}
+	                      transition={{ delay: 0.08, duration: 0.35, ease: "easeOut" }}
+	                    >
+	                      PDF 다운을 받으시면 더 많은 정보를 볼 수 있습니다.
+	                    </motion.p>
+	                  </div>
+	                )}
 
             {/* Idle: material selection */}
             {analysisState === "idle" && (
@@ -3957,12 +3972,15 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-8 py-6">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-foreground/35">
-          <span className="font-mono">Jeju Bio R&D Navigator — Hackathon 2024</span>
-          <span>생성형 AI × 제주 공공데이터 × 의사결정 지원</span>
-        </div>
-      </footer>
+	      <footer className="border-t mt-8 py-6" style={{ borderColor: darkMode ? "rgba(255,255,255,0.14)" : "rgba(92,58,30,0.28)" }}>
+	        <div
+	          className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs"
+	          style={{ color: darkMode ? "rgba(219,234,254,0.78)" : "#5c3a1e" }}
+	        >
+	          <span className="font-mono">Jeju Bio R&D Navigating — Hackathon 2026</span>
+	          <span>생성형 AI × 제주 공공데이터 × 의사결정 지원</span>
+	        </div>
+	      </footer>
 
       {/* How it works dialog */}
       <Dialog open={howItWorksOpen} onOpenChange={setHowItWorksOpen}>

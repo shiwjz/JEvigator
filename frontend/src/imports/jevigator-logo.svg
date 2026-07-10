@@ -1,0 +1,35 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" rx="220" fill="#FFFDF8"/>
+  <g filter="url(#softShadow)">
+    <path d="M721 182C608 88 432 110 337 217C235 331 241 512 349 619L505 773C523 791 554 778 554 752V626C554 604 542 584 523 573C474 545 444 493 444 436C444 349 514 278 601 278C632 278 661 287 686 303L721 182Z" fill="url(#pinGradient)"/>
+    <path d="M719 182C801 252 846 357 837 467C828 581 758 681 657 733C632 746 604 728 604 700V614C604 594 616 576 634 566C679 541 709 492 709 436C709 400 696 366 675 339L719 182Z" fill="url(#orangeGradient)"/>
+    <path d="M610 241C504 241 417 328 417 435C417 505 455 568 513 602V727L373 589C285 502 281 355 365 262C445 173 591 154 690 236L660 302C627 279 586 270 547 279C472 296 421 363 428 439C434 507 484 565 551 579C619 593 688 558 717 496C744 440 730 374 681 328L610 241Z" fill="#FFE9A7" opacity="0.9"/>
+    <path d="M605 454L719 323L640 482C632 498 612 504 596 495C580 486 575 465 587 451L605 454Z" fill="#FFC400"/>
+    <circle cx="585" cy="474" r="48" fill="url(#knobGradient)"/>
+    <path d="M304 561C396 562 481 618 520 703C429 707 344 651 304 561Z" fill="url(#leafGradient)"/>
+    <path d="M328 579C391 599 448 636 497 691" stroke="#FFF7CC" stroke-width="20" stroke-linecap="round"/>
+  </g>
+  <defs>
+    <filter id="softShadow" x="183" y="88" width="692" height="750" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#F27A00" flood-opacity="0.18"/>
+    </filter>
+    <linearGradient id="pinGradient" x1="346" y1="153" x2="661" y2="765" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD21A"/>
+      <stop offset="0.58" stop-color="#FFB000"/>
+      <stop offset="1" stop-color="#F36C00"/>
+    </linearGradient>
+    <linearGradient id="orangeGradient" x1="694" y1="195" x2="617" y2="731" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB300"/>
+      <stop offset="0.4" stop-color="#FF8800"/>
+      <stop offset="1" stop-color="#E85B00"/>
+    </linearGradient>
+    <linearGradient id="knobGradient" x1="542" y1="428" x2="631" y2="516" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD51B"/>
+      <stop offset="1" stop-color="#FF9900"/>
+    </linearGradient>
+    <linearGradient id="leafGradient" x1="316" y1="555" x2="511" y2="716" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC20A"/>
+      <stop offset="1" stop-color="#F0A000"/>
+    </linearGradient>
+  </defs>
+</svg>
