@@ -2629,17 +2629,6 @@ export default function App() {
 	            backgroundRepeat: "no-repeat",
 	          }}
 	        />
-	        <motion.div
-	          initial={false}
-	          animate={{ opacity: activeSection === "home" && darkMode ? 1 : 0 }}
-	          transition={{ duration: 0.55, ease: "easeInOut" }}
-	          style={{
-	            position: "absolute",
-	            inset: 0,
-	            background:
-	              "linear-gradient(180deg, rgba(4, 7, 18, 0.74), rgba(7, 11, 24, 0.94))",
-	          }}
-	        />
 	      </div>
 
 	      <main className="pt-14">
