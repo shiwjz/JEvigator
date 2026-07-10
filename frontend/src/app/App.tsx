@@ -7,7 +7,7 @@ import { SeamlessVideoBackground } from "./components/SeamlessVideoBackground";
 import grassImage from "../imports/visnu-deva-WZBSRWPKBDw-unsplash.jpg";
 import bgImage from "../imports/Gemini_Generated_Image_88su2388su2388su.png";
 import bgImageDark from "../imports/Gemini_Generated_Image_moeip2moeip2moei.png";
-import jevigatorLogo from "../imports/jevigator-logo.svg";
+import jevigatorLogo from "../imports/jevigator-logo.png";
 import greenBioImage from "../imports/jggrz-harvest-4387965_1920.jpg";
 import marineBioImage from "../imports/_____________________________________________________________.jpeg";
 import whiteBioImage from "../imports/research-worker-laboratory-breeding-new-kinds-vegetation_273609-13437.jpg";
@@ -2650,8 +2650,9 @@ export default function App() {
             <section className="relative min-h-[88vh] flex items-center overflow-hidden">
               {/* Background grid */}
               <div
-                className="absolute inset-0 opacity-10"
+                className="absolute inset-0 transition-opacity duration-500"
                 style={{
+                  opacity: darkMode ? 0 : 0.1,
                   backgroundImage:
                     "linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)",
                   backgroundSize: "60px 60px",
