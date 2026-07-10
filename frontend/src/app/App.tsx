@@ -2629,6 +2629,17 @@ export default function App() {
 	            backgroundRepeat: "no-repeat",
 	          }}
 	        />
+	        <motion.div
+	          initial={false}
+	          animate={{ opacity: activeSection === "home" && darkMode ? 1 : 0 }}
+	          transition={{ duration: 0.45, ease: "easeInOut" }}
+	          style={{
+	            position: "absolute",
+	            inset: 0,
+	            minHeight: "100dvh",
+	            background: "rgba(0, 0, 0, 0.48)",
+	          }}
+	        />
 	      </div>
 
 	      <main className="pt-14">
@@ -2646,7 +2657,14 @@ export default function App() {
                   backgroundSize: "60px 60px",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: darkMode
+                    ? "transparent"
+                    : "linear-gradient(to bottom, transparent, transparent, var(--background))",
+                }}
+              />
               <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
